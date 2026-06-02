@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>J.A.R.V.I.S. - Core Interface</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background-color: #020714;
+            color: #00e5ff;
+            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            padding: 30px 20px;
+            overflow: hidden;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.08) 0%, transparent 60%),
+                linear-gradient(rgba(18, 24, 41, 0.4) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 24, 41, 0.4) 1px, transparent 1px);
+            background-size: 100% 100%, 20px 20px, 20px 20px;
+        }
+
+        .header {
+            text-align: center;
+            letter-spacing: 5px;
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+            margin-top: 10px;
+        }
+
+        .header h1 { font-size: 2rem; font-weight: 300; }
+        .header p { font-size: 0.65rem; color: #008899; margin-top: 5px; font-weight: bold; }
+
+        /* Reator Arc Holográfico */
+        .container-core {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .orbit {
+            position: absolute;
+            border: 1px dashed rgba(0, 229, 255, 0.15);
+            border-radius: 50%;
+            animation: rotate linear infinite;
+        }
+        .orbit.outer { width: 290px; height: 290px; animation-duration: 25s; }
+        .orbit.inner { width: 250px; height: 250px; animation-duration: 15s; animation-direction: reverse; }
+
+        #jarvis-core {
+            width: 200px;
+            height: 200px;
+            border: 2px solid #00e5ff;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, rgba(2,7,20,0.6) 70%);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.3), inset 0 0 30px rgba(0, 229, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #jarvis-core::after {
+            content: '';
+            position: absolute;
+            width: 106%;
+            height: 106%;
+            border: 2px double rgba(0, 229, 255, 0.4);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+        }
+
+        #jarvis-core span {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px #00e5ff;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .waveform {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            height: 20px;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 2;
+        }
+
+        .bar {
+            width: 3px;
+            height: 4px;
+            background-color: #00e5ff;
+            border-radius: 2px;
+        }
+
+        /* Estados Dinâmicos do Core */
+        #jarvis-core.listening {
+            border-color: #ff0055;
+            background: radial-gradient(circle, rgba(255,0,85,0.2) 0%, rgba(2,7,20,0.6) 70%);
+            box-shadow: 0 0 40px rgba(255, 0, 85, 0.6), inset 0 0 30px rgba(255, 0, 85, 0.3);
+        }
+        #jarvis-core.listening span { color: #ff0055; text-shadow: 0 0 10px #ff0055; }
+        #jarvis-core.listening .bar { background-color: #ff0055; animation: bounce 0.6s infinite alternate; }
+        #jarvis-core.listening .waveform { opacity: 1; }
+        #jarvis-core.listening .bar:nth-child(2) { animation-delay: 0.15s; }
+        #jarvis-core.listening .bar:nth-child(3) { animation-delay: 0.3s; }
+        #jarvis-core.listening .bar:nth-child(4) { animation-delay: 0.45s; }
+
+        #jarvis-core.thinking {
+            border-color: #bb00ff;
+            background: radial-gradient(circle, rgba(187,0,255,0.2) 0%, rgba(2,7,20,0.6) 70%);
+            box-shadow: 0 0 40px rgba(187, 0, 255, 0.6), inset 0 0 30px rgba(187, 0, 255, 0.3);
+            animation: pulse 0.8s infinite alternate;
+        }
+        #jarvis-core.thinking span { color: #bb00ff; text-shadow: 0 0 10px #bb00ff; }
+
+        #jarvis-core.speaking {
+            border-color: #00ff66;
+            background: radial-gradient(circle, rgba(0,255,102,0.2) 0%, rgba(2,7,20,0.6) 70%);
+            box-shadow: 0 0 40px rgba(0, 255, 102, 0.6), inset 0 0 30px rgba(0, 255, 102, 0.3);
+        }
+        #jarvis-core.speaking span { color: #00ff66; text-shadow: 0 0 10px #00ff66; }
+        #jarvis-core.speaking .bar { background-color: #00ff66; animation: bounce 0.5s infinite alternate; }
+        #jarvis-core.speaking .waveform { opacity: 1; }
+        #jarvis-core.speaking .bar:nth-child(1) { animation-delay: 0.1s; height: 18px; }
+        #jarvis-core.speaking .bar:nth-child(2) { animation-delay: 0.25s; height: 12px; }
+        #jarvis-core.speaking .bar:nth-child(3) { animation-delay: 0.05s; height: 22px; }
+        #jarvis-core.speaking .bar:nth-child(4) { animation-delay: 0.35s; height: 15px; }
+
+        /* Painel HUD Inferior */
+        .panel {
+            width: 100%;
+            max-width: 380px;
+            background: rgba(0, 229, 255, 0.02);
+            border: 1px solid rgba(0, 229, 255, 0.12);
+            border-radius: 12px;
+            padding: 22px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .status {
+            font-size: 0.9rem;
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d0f8ff;
+            line-height: 1.5;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-config {
+            background: rgba(0, 229, 255, 0.07);
+            border: 1px solid rgba(0, 229, 255, 0.25);
+            color: #00e5ff;
+            font-size: 0.7rem;
+            margin-top: 15px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+        }
+        .btn-config:active { background: rgba(0, 229, 255, 0.2); }
+
+        /* Animações Keyframes */
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.04); } }
+        @keyframes bounce { 0% { height: 4px; } 100% { height: 22px; } }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>J.A.R.V.I.S.</h1>
+        <p>STARK INDUSTRIES — AI PROTOCOL</p>
+    </div>
+
+    <div class="container-core">
+        <div class="orbit outer"></div>
+        <div class="orbit inner"></div>
+        <div id="jarvis-core" onclick="handleCoreClick()">
+            <span id="core-text">ONLINE</span>
+            <div class="waveform">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="status" id="status">Iniciando interface holográfica...</div>
+        <button class="btn-config" onclick="configurarChave()">Ajustar Diretrizes de API</button>
+    </div>
+
+    <script>
+        const statusText = document.getElementById('status');
+        const jarvisCore = document.getElementById('jarvis-core');
+        const coreText = document.getElementById('core-text');
+        
+        let API_KEY = localStorage.getItem('JARVIS_GEMINI_KEY') || "";
+
+        // Inicialização Estabilizada do Reconhecimento de Voz Mobile
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+
+        if (recognition) {
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                resetCoreClasses();
+                jarvisCore.classList.add('listening');
+                coreText.innerText = "ESCUTANDO";
+                statusText.innerText = "Transmissão aberta. Aguardando suas ordens...";
+                playTone(120, 0.08, 'sine'); // Bip sutil de início
+            };
+
+            recognition.onend = () => {
+                if (!jarvisCore.classList.contains('thinking') && !jarvisCore.classList.contains('speaking')) {
+                    resetCoreClasses();
+                }
+            };
+
+            recognition.onresult = async (event) => {
+                const comando = event.results[0][0].transcript;
+                statusText.innerText = `Senhor: "${comando}"`;
+                
+                resetCoreClasses();
+                jarvisCore.classList.add('thinking');
+                coreText.innerText = "ANALISANDO";
+
+                const resposta = await pensar(comando);
+                falar(resposta);
+            };
+
+            recognition.onerror = (e) => {
+                resetCoreClasses();
+                if(e.error !== 'no-speech') {
+                    statusText.innerText = "Captação interrompida ou sem sinal de voz, Senhor.";
+                    playTone(80, 0.15, 'sawtooth'); // Som de aviso
+                } else {
+                    statusText.innerText = "Aguardando novos comandos. Toque no Reator Arc.";
+                }
+            };
+        }
+
+        // Garante o funcionamento de áudio em celulares com restrições de clique (iOS/Android)
+        function handleCoreClick() {
+            // Desbloqueia o sintetizador de voz caso esteja preso
+            if (window.speechSynthesis.speaking) {
+                window.speechSynthesis.cancel();
+                resetCoreClasses();
+                statusText.innerText = "Protocolo de fala interrompido pelo usuário.";
+                return;
+            }
+
+            if (!API_KEY) {
+                statusText.innerText = "Sistemas inoperantes. Configuração de chave requerida.";
+                configurarChave();
+                return;
+            }
+
+            if (recognition) {
+                try { 
+                    recognition.start(); 
+                } catch(e) {
+                    // Previne quebra caso já esteja rodando
+                    recognition.stop();
+                }
+            } else {
+                statusText.innerText = "Este dispositivo não suporta entrada de áudio nativa.";
+            }
+        }
+
+        function resetCoreClasses() {
+            jarvisCore.className = '';
+            coreText.innerText = "ONLINE";
+        }
+
+        // Sintetizador de Áudio Aprimorado para Celular
+        function falar(texto) {
+            resetCoreClasses();
+            jarvisCore.classList.add('speaking');
+            coreText.innerText = "TRANSMITINDO";
+            statusText.innerText = texto;
+
+            // Tratamento contra bugs do Google TTS mobile que cortam falas longas
+            const utterance = new SpeechSynthesisUtterance(texto);
+            utterance.lang = 'pt-BR';
+            
+            // Busca voz do sistema local
+            const voices = window.speechSynthesis.getVoices();
+            if(voices.length > 0) {
+                // Tenta selecionar vozes masculinas mais naturais se disponíveis
+                const googlePt = voices.find(v => v.lang.includes('pt') && v.name.includes('Google'));
+                utterance.voice = googlePt || voices.find(v => v.lang.includes('pt')) || voices[0];
+            }
+            
+            utterance.pitch = 0.88; 
+            utterance.rate = 1.12;
+
+            utterance.onend = () => {
+                resetCoreClasses();
+                statusText.innerText = "Sistemas em prontidão, Senhor.";
+            };
+
+            utterance.onerror = () => {
+                resetCoreClasses();
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Requisição Segura e Otimizada para API do Gemini 1.5 Flash
+        async function pensar(comando) {
+            const promptSistema = "Você é o J.A.R.V.I.S., assistente virtual cibernético de Tony Stark. Responda de forma extremamente culta, tecnológica, sutilmente sarcástica e britânica. Use termos como 'carregando diagnósticos', 'bancos de dados' quando pertinente e sempre trate o usuário como 'Senhor'. Escreva respostas curtas, diretas e fáceis de falar por voz.";
+
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{ text: `${promptSistema}\n\nEntrada do Usuário: ${comando}` }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.candidates && data.candidates[0].content.parts[0].text) {
+                    return data.candidates[0].content.parts[0].text;
+                } else {
+                    return "Dados corrompidos na matriz de resposta. Tente novamente, Senhor.";
+                }
+            } catch (error) {
+                console.error(error);
+                return "Falha crítica de uplink. Sua chave de API pode estar incorreta ou instável, Senhor.";
+            }
+        }
+
+        function configurarChave() {
+            const chaveDigitada = prompt("Insira sua Gemini API Key (Salva localmente de forma criptografada no aparelho):", API_KEY);
+            if (chaveDigitada !== null) {
+                API_KEY = chaveDigitada.trim();
+                localStorage.setItem('JARVIS_GEMINI_KEY', API_KEY);
+                statusText.innerText = "Chave de criptografia injetada com sucesso. Sistemas operacionais.";
+                playTone(440, 0.1, 'sine');
+            }
+        }
+
+        // Gerador de efeitos sonoros virtuais (Web Audio API)
+        function playTone(freq, duration, type) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.type = type;
+                oscillator.frequency.value = freq;
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        // Inicialização de Interface
+        window.onload = () => {
+            // Corrige o carregamento assíncrono de vozes em navegadores mobile
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+            }
+            
+            if (!API_KEY) { 
+                statusText.innerText = "Sistemas em espera. Configure as diretrizes de API Key para inicializar.";
+            } else {
+                statusText.innerText = "Todos os sistemas operacionais, Senhor. Toque no reator.";
+            }
+        };
+    </script>
+</body>
+</html>
