@@ -1,734 +1,641 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. - Mark VII Interface</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            background-color: #01040d;
-            color: #00e5ff;
-            font-family: 'Consolas', 'Courier New', monospace;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            height: 100vh;
-            padding: 15px;
-            overflow: hidden;
-            position: relative;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>J.A.R.V.I.S. — Mark IX</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap');
 
-        /* Canvas de Partículas Stark Fundo */
-        #particle-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-            opacity: 0.3;
-        }
+:root {
+  --cyan: #00e5ff;
+  --cyan-dim: rgba(0,229,255,0.15);
+  --cyan-mid: rgba(0,229,255,0.4);
+  --red: #ff2244;
+  --green: #00ff88;
+  --purple: #c800ff;
+  --bg: #00050f;
+  --bg2: rgba(0,12,28,0.85);
+  --text: #a8f0ff;
+  --text-dim: #3a7080;
+  --font: 'Rajdhani', sans-serif;
+  --mono: 'Share Tech Mono', monospace;
+}
 
-        /* HUD Superior */
-        .hud-top {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.65rem;
-            color: #008899;
-            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
-            padding-bottom: 5px;
-            letter-spacing: 2px;
-            z-index: 2;
-        }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;}
 
-        .header {
-            text-align: center;
-            margin: 10px 0;
-            z-index: 2;
-        }
-        .header h1 { 
-            font-size: 1.8rem; 
-            font-weight: 900; 
-            letter-spacing: 8px;
-            text-shadow: 0 0 20px rgba(0, 229, 255, 0.8);
-        }
+body{
+  background:var(--bg);
+  color:var(--cyan);
+  font-family:var(--font);
+  display:flex;
+  flex-direction:column;
+  height:100dvh;
+  position:relative;
+  overflow:hidden;
+}
 
-        /* --- LAYOUT GRID EM 3 COLUNAS --- */
-        .hud-container {
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            gap: 20px;
-            width: 100%;
-            flex-grow: 1;
-            align-items: stretch;
-            z-index: 2;
-            max-width: 1600px;
-        }
+/* Fundo Grid */
+.grid-bg{
+  position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);
+  background-size:40px 40px;
+  animation:grid-drift 20s linear infinite;
+}
+@keyframes grid-drift{0%{background-position:0 0;}100%{background-position:40px 40px;}}
 
-        /* Painéis Genéricos do HUD */
-        .hud-box {
-            background: rgba(1, 8, 24, 0.6);
-            border: 1px solid rgba(0, 229, 255, 0.15);
-            padding: 15px;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            gap: 15px;
-        }
+/* Scanline */
+.scanline{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
+}
 
-        /* Efeito de Cantoneiras Digitais do Stark HUD */
-        .hud-box::before {
-            content: '';
-            position: absolute;
-            top: -1px; left: -1px;
-            width: 8px; height: 8px;
-            border-top: 2px solid #00e5ff;
-            border-left: 2px solid #00e5ff;
-        }
-        .hud-box::after {
-            content: '';
-            position: absolute;
-            bottom: -1px; right: -1px;
-            width: 8px; height: 8px;
-            border-bottom: 2px solid #00e5ff;
-            border-right: 2px solid #00e5ff;
-        }
+/* Canvas Radar */
+#radar-canvas{position:fixed;top:0;right:0;width:260px;height:260px;z-index:1;opacity:0.12;pointer-events:none;}
 
-        .hud-box h2 {
-            font-size: 0.75rem;
-            letter-spacing: 2px;
-            color: #008899;
-            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
-            padding-bottom: 5px;
-            text-transform: uppercase;
-        }
+/* HUD Top Bar */
+.hud-top{
+  position:relative;z-index:10;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 16px 8px;
+  border-bottom:1px solid rgba(0,229,255,0.1);
+  font-family:var(--mono);font-size:10px;color:var(--text-dim);letter-spacing:2px;
+  flex-shrink:0;
+}
+.hud-top .logo{font-size:13px;font-weight:700;letter-spacing:5px;color:var(--cyan);text-shadow:0 0 15px rgba(0,229,255,0.5);}
+.hud-top .sys{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
 
-        /* Colunas Laterais */
-        .side-column {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+/* Status Dots */
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;animation:blink 2s ease-in-out infinite;}
+.dot.green{background:var(--green);box-shadow:0 0 6px var(--green);}
+.dot.cyan{background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
+.dot.red{background:var(--red);box-shadow:0 0 6px var(--red);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
-        /* Coluna Central */
-        .center-column {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-        }
+/* MAIN CONTENT */
+.main{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:0 16px 16px;position:relative;z-index:10;
+  overflow:hidden;gap:14px;
+  justify-content:space-between;
+}
 
-        /* Reator Arc Quântico */
-        .container-core {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            width: 100%;
-        }
+/* CORE ARC REACTOR */
+.core-wrap{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  margin-top:10px;flex-shrink:0;
+}
+.ring{position:absolute;border-radius:50%;}
+.ring-1{
+  width:180px;height:180px;
+  border:1px solid rgba(0,229,255,0.08);
+  animation:spin 60s linear infinite;
+}
+.ring-2{
+  width:160px;height:160px;
+  border-top:1px solid rgba(0,229,255,0.25);
+  border-right:1px solid transparent;
+  border-bottom:1px solid rgba(0,229,255,0.1);
+  border-left:1px solid transparent;
+  animation:spin 18s linear infinite reverse;
+}
+.ring-3{
+  width:140px;height:140px;
+  border-top:2px dashed rgba(0,229,255,0.2);
+  border-right:2px dashed transparent;
+  border-bottom:2px dashed rgba(0,229,255,0.08);
+  border-left:2px dashed transparent;
+  animation:spin 8s linear infinite;
+}
+.ring-4{
+  width:118px;height:118px;
+  border:1px solid rgba(0,229,255,0.15);
+  animation:spin 4s linear infinite reverse;
+}
 
-        .orbit {
-            position: absolute;
-            border-radius: 50%;
-            transform-style: preserve-3d;
-            perspective: 800px;
-        }
-        .orbit.outer { 
-            width: 280px; 
-            height: 280px; 
-            border: 2px dashed rgba(0, 229, 255, 0.15); 
-            animation: rotate linear infinite 40s; 
-        }
-        .orbit.mid { 
-            width: 230px; 
-            height: 230px; 
-            border-top: 2px solid rgba(0, 229, 255, 0.4); 
-            border-bottom: 2px solid rgba(0, 229, 255, 0.1); 
-            animation: rotate linear infinite 15s reverse; 
-        }
-        .orbit.inner { 
-            width: 180px; 
-            height: 180px; 
-            border-left: 3px dashed rgba(0, 229, 255, 0.3); 
-            animation: rotate linear infinite 8s; 
-        }
+@keyframes spin{to{transform:rotate(360deg);}}
 
-        #jarvis-core {
-            width: 130px;
-            height: 130px;
-            border: 3px solid #00e5ff;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            background: radial-gradient(circle, rgba(0,229,255,0.2) 0%, rgba(1,4,13,0.9) 75%);
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4), inset 0 0 20px rgba(0, 229, 255, 0.2);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            -webkit-tap-highlight-color: transparent;
-            z-index: 5;
-        }
+/* Corner ticks on outermost ring */
+.ring-1::before,.ring-1::after{
+  content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 8px var(--cyan);top:50%;left:0;transform:translate(-50%,-50%);
+}
+.ring-1::after{left:auto;right:0;transform:translate(50%,-50%);}
 
-        #jarvis-core span {
-            font-size: 1rem;
-            font-weight: 900;
-            letter-spacing: 3px;
-            text-shadow: 0 0 15px #00e5ff;
-        }
+#core{
+  width:106px;height:106px;border-radius:50%;
+  border:2px solid var(--cyan);
+  background:radial-gradient(circle at center,rgba(0,229,255,0.18) 0%,rgba(0,5,15,0.95) 65%);
+  box-shadow:0 0 25px rgba(0,229,255,0.3),inset 0 0 20px rgba(0,229,255,0.12);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  cursor:pointer;position:relative;z-index:5;
+  transition:all 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+  user-select:none;
+}
+#core-label{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--cyan);text-shadow:0 0 10px var(--cyan);}
+.bars{display:flex;gap:3px;align-items:flex-end;height:14px;}
+.b{width:3px;background:var(--cyan);border-radius:2px;height:3px;transition:all 0.2s;}
 
-        /* Linhas de Energia da Waveform */
-        .waveform {
-            display: flex;
-            gap: 3px;
-            height: 12px;
-            margin-top: 8px;
-            align-items: center;
-        }
-        .bar { width: 2px; height: 3px; background-color: #00e5ff; border-radius: 50px; transition: background 0.3s, height 0.1s; }
+/* STATES */
+#core.listening{
+  border-color:var(--red);
+  background:radial-gradient(circle at center,rgba(255,34,68,0.2) 0%,rgba(0,5,15,0.95) 65%);
+  box-shadow:0 0 35px rgba(255,34,68,0.4),inset 0 0 20px rgba(255,34,68,0.15);
+  animation:pulse-red 0.8s ease-in-out infinite alternate;
+}
+#core.listening #core-label{color:var(--red);text-shadow:0 0 10px var(--red);}
+#core.listening .b{background:var(--red);}
+@keyframes pulse-red{from{box-shadow:0 0 25px rgba(255,34,68,0.4);}to{box-shadow:0 0 50px rgba(255,34,68,0.7);}}
 
-        /* ESTADOS DO CORE */
-        #jarvis-core.listening {
-            border-color: #ff2a2a;
-            background: radial-gradient(circle, rgba(255,42,42,0.2) 0%, rgba(1,4,13,0.9) 75%);
-            box-shadow: 0 0 40px rgba(255, 42, 42, 0.5), inset 0 0 25px rgba(255, 42, 42, 0.3);
-            transform: scale(1.05);
-        }
-        #jarvis-core.listening span { color: #ff2a2a; text-shadow: 0 0 15px #ff2a2a; }
-        #jarvis-core.listening .bar { background-color: #ff2a2a; animation: audio-bounce 0.4s infinite alternate; }
-        #jarvis-core.listening .bar:nth-child(1) { animation-delay: 0.1s; height: 10px; }
-        #jarvis-core.listening .bar:nth-child(2) { animation-delay: 0.3s; height: 16px; }
-        #jarvis-core.listening .bar:nth-child(3) { animation-delay: 0.0s; height: 8px; }
-        #jarvis-core.listening .bar:nth-child(4) { animation-delay: 0.2s; height: 13px; }
+#core.thinking{
+  border-color:var(--purple);
+  background:radial-gradient(circle at center,rgba(200,0,255,0.18) 0%,rgba(0,5,15,0.95) 65%);
+  box-shadow:0 0 35px rgba(200,0,255,0.4),inset 0 0 20px rgba(200,0,255,0.12);
+  animation:pulse-purple 0.5s ease-in-out infinite alternate;
+}
+#core.thinking #core-label{color:var(--purple);text-shadow:0 0 10px var(--purple);}
+#core.thinking .b{background:var(--purple);animation:think-bars 1s ease-in-out infinite alternate;}
+@keyframes think-bars{from{height:2px;}to{height:14px;}}
+@keyframes pulse-purple{from{box-shadow:0 0 25px rgba(200,0,255,0.4);}to{box-shadow:0 0 55px rgba(200,0,255,0.7);}}
 
-        #jarvis-core.thinking {
-            border-color: #df00ff;
-            background: radial-gradient(circle, rgba(223,0,255,0.2) 0%, rgba(1,4,13,0.9) 75%);
-            box-shadow: 0 0 40px rgba(223, 0, 255, 0.5), inset 0 0 25px rgba(223, 0, 255, 0.3);
-            animation: core-pulse 0.6s infinite alternate;
-        }
-        #jarvis-core.thinking span { color: #df00ff; text-shadow: 0 0 15px #df00ff; }
-        #jarvis-core.thinking .bar { background-color: #df00ff; height: 2px; }
+#core.speaking{
+  border-color:var(--green);
+  background:radial-gradient(circle at center,rgba(0,255,136,0.18) 0%,rgba(0,5,15,0.95) 65%);
+  box-shadow:0 0 35px rgba(0,255,136,0.4),inset 0 0 20px rgba(0,255,136,0.12);
+}
+#core.speaking #core-label{color:var(--green);text-shadow:0 0 10px var(--green);}
+#core.speaking .b{background:var(--green);}
 
-        #jarvis-core.speaking {
-            border-color: #00ff66;
-            background: radial-gradient(circle, rgba(0,255,102,0.2) 0%, rgba(1,4,13,0.9) 75%);
-            box-shadow: 0 0 40px rgba(0, 225, 102, 0.5), inset 0 0 25px rgba(0, 225, 102, 0.3);
-        }
-        #jarvis-core.speaking span { color: #00ff66; text-shadow: 0 0 15px #00ff66; }
-        #jarvis-core.speaking .bar { background-color: #00ff66; animation: audio-bounce 0.35s infinite alternate; }
-        #jarvis-core.speaking .bar:nth-child(1) { height: 12px; animation-delay: 0.05s; }
-        #jarvis-core.speaking .bar:nth-child(2) { height: 20px; animation-delay: 0.2s; }
-        #jarvis-core.speaking .bar:nth-child(3) { height: 15px; animation-delay: 0.1s; }
-        #jarvis-core.speaking .bar:nth-child(4) { height: 8px; animation-delay: 0.25s; }
+/* Speaking wave bars */
+#core.speaking .b:nth-child(1){animation:wave 0.4s 0s infinite alternate;}
+#core.speaking .b:nth-child(2){animation:wave 0.4s 0.1s infinite alternate;}
+#core.speaking .b:nth-child(3){animation:wave 0.4s 0.05s infinite alternate;}
+#core.speaking .b:nth-child(4){animation:wave 0.4s 0.15s infinite alternate;}
+#core.speaking .b:nth-child(5){animation:wave 0.4s 0.08s infinite alternate;}
+@keyframes wave{from{height:3px;}to{height:14px;}}
 
-        /* Console Terminal Central */
-        .hud-panel-main {
-            width: 100%;
-            max-width: 650px;
-        }
+/* Listening bars */
+#core.listening .b:nth-child(1){animation:wave2 0.35s 0.02s infinite alternate;}
+#core.listening .b:nth-child(2){animation:wave2 0.35s 0.12s infinite alternate;}
+#core.listening .b:nth-child(3){animation:wave2 0.35s 0.06s infinite alternate;}
+#core.listening .b:nth-child(4){animation:wave2 0.35s 0.18s infinite alternate;}
+#core.listening .b:nth-child(5){animation:wave2 0.35s 0.09s infinite alternate;}
+@keyframes wave2{from{height:3px;}to{height:12px;}}
 
-        .terminal-box {
-            font-size: 0.8rem;
-            min-height: 60px;
-            max-height: 90px;
-            overflow-y: auto;
-            color: #d2f9ff;
-            line-height: 1.5;
-            text-align: left;
-            border-left: 3px solid rgba(0, 229, 255, 0.5);
-            padding-left: 12px;
-            margin-bottom: 10px;
-        }
+/* HUD PANELS */
+.panel{
+  width:100%;background:var(--bg2);
+  border:1px solid rgba(0,229,255,0.12);
+  padding:12px 14px;position:relative;
+  backdrop-filter:blur(10px);
+  flex-shrink:0;
+}
+.panel::before{content:'';position:absolute;top:-1px;left:-1px;width:10px;height:10px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+.panel::after{content:'';position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+.panel-title{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;}
 
-        /* Barras de Carga de Processamento e Status */
-        .load-bar {
-            width: 100%;
-            height: 3px;
-            background: rgba(0, 229, 255, 0.1);
-            position: relative;
-            overflow: hidden;
-            border-radius: 10px;
-        }
-        .load-progress {
-            width: 100%;
-            height: 100%;
-            background: #00e5ff;
-            transform: translateX(-100%);
-            transition: transform 0.4s ease;
-        }
-        #jarvis-core.thinking ~ .hud-panel-main .load-progress {
-            animation: load-run 1.5s infinite ease-in-out;
-        }
+/* TERMINAL */
+#terminal{
+  font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--text);
+  min-height:52px;max-height:80px;overflow-y:auto;
+  border-left:2px solid rgba(0,229,255,0.3);padding-left:10px;
+  word-break:break-word;
+}
+#terminal::-webkit-scrollbar{width:3px;}
+#terminal::-webkit-scrollbar-thumb{background:rgba(0,229,255,0.2);border-radius:3px;}
 
-        .footer-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 10px;
-        }
+/* Progress bar */
+.progress-track{width:100%;height:2px;background:rgba(0,229,255,0.08);border-radius:1px;overflow:hidden;margin-top:10px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,transparent,var(--cyan));width:0%;transition:width 0.4s;}
+.progress-fill.running{animation:progress-run 1.5s ease-in-out infinite;}
+@keyframes progress-run{0%{width:0%;margin-left:0;}50%{width:60%;}100%{width:0%;margin-left:100%;}}
 
-        .btn-action {
-            background: transparent;
-            border: 1px solid rgba(0, 229, 255, 0.4);
-            color: #00e5ff;
-            font-size: 0.6rem;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: all 0.2s ease;
-            font-weight: bold;
-        }
-        .btn-action:hover {
-            background: rgba(0, 229, 255, 0.1);
-            box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
-        }
-        .memory-status { font-size: 0.6rem; color: #006677; font-weight: bold; letter-spacing: 1px; }
+/* Bottom Controls */
+.controls{
+  width:100%;display:flex;justify-content:space-between;align-items:center;
+  margin-top:10px;gap:8px;
+}
+.btn{
+  background:transparent;border:1px solid rgba(0,229,255,0.2);
+  color:var(--cyan);font-family:var(--mono);font-size:9px;
+  padding:6px 12px;cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;
+  transition:all 0.2s;border-radius:0;flex:1;
+}
+.btn:hover,.btn:active{background:rgba(0,229,255,0.08);border-color:rgba(0,229,255,0.5);}
+.btn.danger{border-color:rgba(255,34,68,0.3);color:var(--red);}
+.btn.danger:hover,.btn.danger:active{background:rgba(255,34,68,0.08);border-color:rgba(255,34,68,0.5);}
 
-        /* Elementos de Diagnóstico de Barras */
-        .diag-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .diag-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.65rem;
-            color: #d2f9ff;
-            letter-spacing: 1px;
-        }
-        .diag-progress-bg {
-            width: 100%;
-            height: 5px;
-            background: rgba(0, 229, 255, 0.05);
-        }
-        .diag-progress-fill {
-            height: 100%;
-            background: #00e5ff;
-            box-shadow: 0 0 6px rgba(0, 229, 255, 0.6);
-        }
+/* STATUS ROW */
+.status-row{
+  width:100%;display:flex;justify-content:space-between;
+  font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;
+}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.stat-val{font-size:13px;font-weight:700;font-family:var(--font);color:var(--cyan);}
+.stat-val.ok{color:var(--green);}
+.stat-val.warn{color:#ffaa00;}
 
-        /* Elementos da Matriz Dinâmica / Logs */
-        .matrix-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.65rem;
-            border-bottom: 1px dashed rgba(0,229,255,0.05);
-            padding: 4px 0;
-        }
-        .status-secure { color: #00ff66; }
-        .status-active { color: #00e5ff; }
-        .status-warn { color: #ffaa00; }
-        .status-danger { color: #ff2a2a; }
+/* DIAG BARS */
+.diag{display:flex;flex-direction:column;gap:6px;width:100%;}
+.diag-row{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;color:var(--text-dim);}
+.diag-label{min-width:70px;letter-spacing:1px;}
+.diag-track{flex:1;height:3px;background:rgba(0,229,255,0.07);}
+.diag-fill{height:100%;background:var(--cyan);box-shadow:0 0 4px rgba(0,229,255,0.5);}
+.diag-fill.green{background:var(--green);box-shadow:0 0 4px rgba(0,255,136,0.5);}
+.diag-fill.warn{background:#ffaa00;box-shadow:0 0 4px rgba(255,170,0,0.5);}
+.diag-num{min-width:30px;text-align:right;}
 
-        .log-box {
-            font-size: 0.6rem;
-            line-height: 1.4;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            overflow-hidden: scroll;
-        }
+/* TEXT INPUT */
+.input-row{
+  width:100%;display:flex;gap:8px;align-items:center;
+  margin-top:4px;
+}
+#text-input{
+  flex:1;background:rgba(0,229,255,0.04);
+  border:1px solid rgba(0,229,255,0.2);
+  color:var(--text);font-family:var(--mono);font-size:12px;
+  padding:8px 12px;outline:none;
+  caret-color:var(--cyan);
+}
+#text-input:focus{border-color:rgba(0,229,255,0.5);background:rgba(0,229,255,0.06);}
+#text-input::placeholder{color:var(--text-dim);}
+.btn-send{
+  background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);
+  color:var(--cyan);font-family:var(--mono);font-size:11px;
+  padding:8px 14px;cursor:pointer;letter-spacing:1px;
+  transition:all 0.2s;flex-shrink:0;
+}
+.btn-send:hover,.btn-send:active{background:rgba(0,229,255,0.2);}
 
-        /* Keyframes Globais */
-        @keyframes rotate { 100% { transform: rotate(360deg); } }
-        @keyframes core-pulse { 0% { transform: scale(1); } 100% { transform: scale(1.03); } }
-        @keyframes audio-bounce { 0% { height: 3px; } 100% { height: 18px; } }
-        @keyframes load-run { 0% { transform: translateX(-100%); } 50% { transform: translateX(0%); } 100% { transform: translateX(100%); } }
+/* MODE TOGGLE */
+.mode-toggle{
+  display:flex;gap:1px;width:100%;margin-bottom:4px;
+}
+.mode-btn{
+  flex:1;background:transparent;border:1px solid rgba(0,229,255,0.12);
+  color:var(--text-dim);font-family:var(--mono);font-size:9px;
+  padding:5px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;text-transform:uppercase;
+}
+.mode-btn.active{background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.4);color:var(--cyan);}
 
-        /* Responsividade Básica Mobile */
-        @media (max-width: 900px) {
-            .hud-container { grid-template-columns: 1fr; }
-            .side-column { display: none; }
-            body { overflow-y: auto; height: auto; }
-        }
-    </style>
+/* Memory tag */
+#memory-tag{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+
+@media(min-width:600px){
+  .main{max-width:420px;margin:0 auto;padding:0 0 16px;}
+  .ring-1{width:210px;height:210px;}
+  .ring-2{width:190px;height:190px;}
+  .ring-3{width:168px;height:168px;}
+  .ring-4{width:144px;height:144px;}
+  #core{width:126px;height:126px;}
+}
+</style>
 </head>
 <body>
 
-    <canvas id="particle-canvas"></canvas>
+<div class="grid-bg"></div>
+<div class="scanline"></div>
+<canvas id="radar-canvas"></canvas>
 
-    <div class="hud-top">
-        <span id="sys-time">SYS.LOC: 00:00:00</span>
-        <span>SECURE UPLINK // PROTOCOLO MARK VII</span>
+<div class="hud-top">
+  <div class="logo">J.A.R.V.I.S.</div>
+  <div class="sys">
+    <span><span class="dot green"></span>UPLINK ATIVO</span>
+    <span id="sys-time" style="color:var(--text-dim)">00:00:00</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ARC REACTOR CORE -->
+  <div class="core-wrap">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <div class="ring ring-4"></div>
+    <div id="core" onclick="handleCoreClick()">
+      <span id="core-label">CORE</span>
+      <div class="bars">
+        <div class="b"></div>
+        <div class="b"></div>
+        <div class="b"></div>
+        <div class="b"></div>
+        <div class="b"></div>
+      </div>
     </div>
+  </div>
 
-    <div class="header">
-        <h1>J.A.R.V.I.S.</h1>
+  <!-- STATUS ROW -->
+  <div class="status-row">
+    <div class="stat-item">
+      <span class="stat-val ok" id="arc-pct">98%</span>
+      <span>ARC REACTOR</span>
     </div>
-
-    <div class="hud-container">
-        
-        <div class="side-column">
-            <div class="hud-box">
-                <h2>System Diagnostics</h2>
-                <div class="diag-item">
-                    <div class="diag-label"><span>CPU CORE</span><span>73%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 73%;"></div></div>
-                </div>
-                <div class="diag-item">
-                    <div class="diag-label"><span>MEMORY</span><span>58%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 58%;"></div></div>
-                </div>
-                <div class="diag-item">
-                    <div class="diag-label"><span>GPU RENDER</span><span>91%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 91%; background: #00ff66;"></div></div>
-                </div>
-                <div class="diag-item">
-                    <div class="diag-label"><span>NETWORK I/O</span><span>34%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 34%;"></div></div>
-                </div>
-            </div>
-
-            <div class="hud-box">
-                <h2>Threat Matrix</h2>
-                <div class="matrix-row"><span>SECTOR 7</span><span class="status-secure">SECURE</span></div>
-                <div class="matrix-row"><span>PERIMETER</span><span class="status-active">ACTIVE</span></div>
-                <div class="matrix-row"><span>AIR TRAFFIC</span><span class="status-secure">NOMINAL</span></div>
-                <div class="matrix-row"><span>SIGNAL JAM</span><span class="status-danger">DETECTED</span></div>
-            </div>
-        </div>
-
-        <div class="center-column">
-            <div class="container-core">
-                <div class="orbit outer"></div>
-                <div class="orbit mid"></div>
-                <div class="orbit inner"></div>
-                <div id="jarvis-core" onclick="handleCoreClick()">
-                    <span id="core-text">CORE</span>
-                    <div class="waveform">
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                        <div class="bar"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="hud-box hud-panel-main">
-                <h2>J.A.R.V.I.S. Interface</h2>
-                <div class="terminal-box" id="terminal">Sistemas online. Inicialização vocal pendente, Senhor...</div>
-                <div class="load-bar"><div class="load-progress" id="progress"></div></div>
-                
-                <div class="footer-controls">
-                    <button class="btn-action" onclick="configurarChave()">API KEY</button>
-                    <span class="memory-status" id="memory-tag">MEMÓRIA: LIMPA</span>
-                    <button class="btn-action" onclick="limparMemoria()" style="border-color: rgba(255,42,42,0.4); color: #ff2a2a;">RESET</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="side-column">
-            <div class="hud-box">
-                <h2>Suit Status</h2>
-                <div class="diag-item">
-                    <div class="diag-label"><span>ARC REACTOR</span><span>97%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 97%;"></div></div>
-                </div>
-                <div class="diag-item">
-                    <div class="diag-label"><span>REPULSORS</span><span>84%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 84%;"></div></div>
-                </div>
-                <div class="diag-item">
-                    <div class="diag-label"><span>UNIBEAM</span><span>100%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 100%; background: #ffaa00;"></div></div>
-                </div>
-                <div class="diag-item">
-                    <div class="diag-label"><span>SHIELDS</span><span>62%</span></div>
-                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 62%;"></div></div>
-                </div>
-            </div>
-
-            <div class="hud-box">
-                <h2>Activity Log</h2>
-                <div class="log-box">
-                    <div>[08:42:11] <span class="status-active">[INFO]</span> Arc reactor recalibrated.</div>
-                    <div>[08:39:54] <span class="status-secure">[OK]</span> Perimeter scan complete.</div>
-                    <div>[08:37:02] <span class="status-warn">[WARN]</span> Unknown signal intercepted.</div>
-                    <div>[08:34:17] <span class="status-secure">[OK]</span> Mark VII deployed successfully.</div>
-                </div>
-            </div>
-        </div>
-
+    <div class="stat-item">
+      <span class="stat-val" id="mem-count">0</span>
+      <span>REGISTROS</span>
     </div>
+    <div class="stat-item">
+      <span class="stat-val ok" id="ping-val">—ms</span>
+      <span>SUPABASE</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val ok" id="cloud-status">SYNC</span>
+      <span>NUVEM</span>
+    </div>
+  </div>
 
-    <script>
-        const terminal = document.getElementById('terminal');
-        const jarvisCore = document.getElementById('jarvis-core');
-        const coreText = document.getElementById('core-text');
-        const progress = document.getElementById('progress');
-        const memoryTag = document.getElementById('memory-tag');
-        
-        let API_KEY = localStorage.getItem('JARVIS_GEMINI_KEY') || "";
-        let historicoConversa = JSON.parse(localStorage.getItem('JARVIS_HISTORY')) || [];
+  <!-- TERMINAL PANEL -->
+  <div class="panel" style="flex-shrink:1;">
+    <div class="panel-title">/// interface neural — output</div>
+    <div id="terminal">Inicializando uplink quântico com o cluster Supabase...</div>
+    <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
+  </div>
 
-        // --- SISTEMA DE PARTÍCULAS EM CANVAS ---
-        const canvas = document.getElementById('particle-canvas');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
-        
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+  <!-- MODE + INPUT -->
+  <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btn-voice" onclick="setMode('voice')">▶ VOZ</button>
+      <button class="mode-btn" id="btn-text" onclick="setMode('text')">✎ TEXTO</button>
+    </div>
+    <div class="input-row" id="text-mode" style="display:none;">
+      <input type="text" id="text-input" placeholder="Comando, Senhor..." autocomplete="off" autocorrect="off" spellcheck="false" />
+      <button class="btn-send" onclick="enviarTexto()">→</button>
+    </div>
+  </div>
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 1.2 + 0.5;
-                this.speedX = (Math.random() - 0.5) * 0.2;
-                this.speedY = (Math.random() - 0.5) * 0.2;
-                this.alpha = Math.random() * 0.4 + 0.1;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
-            }
-            draw() {
-                ctx.save();
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = '#00e5ff';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.restore();
-            }
-        }
+  <!-- DIAG + CONTROLS -->
+  <div class="panel">
+    <div class="panel-title">/// diagnóstico do sistema</div>
+    <div class="diag">
+      <div class="diag-row">
+        <span class="diag-label">NEURAL</span>
+        <div class="diag-track"><div class="diag-fill" style="width:88%"></div></div>
+        <span class="diag-num">88%</span>
+      </div>
+      <div class="diag-row">
+        <span class="diag-label">MEMÓRIA</span>
+        <div class="diag-track"><div class="diag-fill warn" id="mem-bar" style="width:5%"></div></div>
+        <span class="diag-num" id="mem-bar-pct">5%</span>
+      </div>
+      <div class="diag-row">
+        <span class="diag-label">ESCUDO</span>
+        <div class="diag-track"><div class="diag-fill green" style="width:100%"></div></div>
+        <span class="diag-num">100%</span>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="btn" onclick="configurarChave()">API KEY</button>
+      <span id="memory-tag">MEM: LIMPA</span>
+      <button class="btn danger" onclick="limparMemoria()">RESET</button>
+    </div>
+  </div>
 
-        function initParticles() {
-            particles = [];
-            for(let i = 0; i < 50; i++) particles.push(new Particle());
-        }
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(0, 229, 255, 0.01)';
-            ctx.lineWidth = 1;
-            for(let i = 0; i < canvas.width; i += 50) {
-                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
-            }
-            for(let i = 0; i < canvas.height; i += 50) {
-                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
-            }
-            
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animateParticles);
-        }
-        initParticles();
-        animateParticles();
+</div>
 
-        // Relógio do HUD
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('sys-time').innerText = `SYS.TIME: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
-        }, 1000);
+<script>
+const SUPABASE_URL = "https://wcauxihesengnpxqjoro.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjYXV4aWhlc2VuZ25weHFqb3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNTgxMjUsImV4cCI6MjA5NTkzNDEyNX0.S6TzNgiqFtUUrQvdyhMjj_LW-kpiog4Fpnx0RzJrmPU";
 
-        // API de Reconhecimento de Voz
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        if (recognition) {
-            recognition.lang = 'pt-BR';
-            recognition.interimResults = false;
+const terminal = document.getElementById('terminal');
+const core = document.getElementById('core');
+const coreLabel = document.getElementById('core-label');
+const progress = document.getElementById('progress');
+const memTag = document.getElementById('memory-tag');
 
-            recognition.onstart = () => {
-                resetCoreClasses();
-                jarvisCore.classList.add('listening');
-                coreText.innerText = "LISTEN";
-                terminal.innerText = ">>> Captando canais de áudio locais...";
-                playTone(220, 0.04, 'sine');
-            };
+let API_KEY = "";
+let history = [];
+let inputMode = 'voice';
 
-            recognition.onresult = async (event) => {
-                const comando = event.results[0][0].transcript;
-                terminal.innerHTML = `<span style="color: #008899;">Senhor:</span> ${comando}`;
-                
-                resetCoreClasses();
-                jarvisCore.classList.add('thinking');
-                coreText.innerText = "LOAD";
-                progress.style.transform = "translateX(0%)";
+// --- RADAR CANVAS ---
+const rc = document.getElementById('radar-canvas');
+const rx = rc.getContext('2d');
+rc.width = 260; rc.height = 260;
+let radarAngle = 0;
+function drawRadar() {
+  rx.clearRect(0,0,260,260);
+  const cx=130,cy=130,r=120;
+  rx.strokeStyle='rgba(0,229,255,1)';rx.lineWidth=0.5;
+  [40,80,120].forEach(radius=>{rx.beginPath();rx.arc(cx,cy,radius,0,Math.PI*2);rx.stroke();});
+  rx.beginPath();rx.moveTo(cx-r,cy);rx.lineTo(cx+r,cy);rx.stroke();
+  rx.beginPath();rx.moveTo(cx,cy-r);rx.lineTo(cx,cy+r);rx.stroke();
+  const grad=rx.createConicalGradient?null:null;
+  rx.save();rx.translate(cx,cy);rx.rotate(radarAngle);
+  const lg=rx.createLinearGradient(0,-r,0,0);
+  lg.addColorStop(0,'rgba(0,229,255,0.6)');lg.addColorStop(1,'rgba(0,229,255,0)');
+  rx.beginPath();rx.moveTo(0,0);rx.arc(0,0,r,-Math.PI/2,-Math.PI/2+Math.PI*0.7);rx.closePath();
+  rx.fillStyle=lg;rx.fill();rx.restore();
+  radarAngle+=0.015;
+  requestAnimationFrame(drawRadar);
+}
+drawRadar();
 
-                const resposta = await pensar(comando);
-                falar(resposta);
-            };
+// --- CLOCK ---
+setInterval(()=>{
+  const n=new Date();
+  document.getElementById('sys-time').textContent=
+    n.getHours().toString().padStart(2,'0')+':'+
+    n.getMinutes().toString().padStart(2,'0')+':'+
+    n.getSeconds().toString().padStart(2,'0');
+},1000);
 
-            recognition.onerror = (e) => {
-                resetCoreClasses();
-                if (e.error !== 'no-speech') {
-                    typeWrite("Interferência magnética severa detectada no decodificador de áudio, Senhor.");
-                    playTone(90, 0.25, 'sawtooth');
-                }
-            };
-        }
+// --- SUPABASE ---
+async function carregarDados() {
+  const t0=performance.now();
+  try {
+    const [{data:kd},{data:hd}] = await Promise.all([
+      db.from('jarvis_memory').select('value').eq('key','gemini_key').single(),
+      db.from('jarvis_memory').select('value').eq('key','history').single()
+    ]);
+    const t1=performance.now();
+    document.getElementById('ping-val').textContent=Math.round(t1-t0)+'ms';
 
-        function handleCoreClick() {
-            if (window.speechSynthesis.speaking) {
-                window.speechSynthesis.cancel();
-                resetCoreClasses();
-                typeWrite("Modulação vocal cancelada por demanda.");
-                return;
-            }
-            if (!API_KEY) {
-                typeWrite("Acesso negado. Insira a assinatura digital de API.");
-                configurarChave();
-                return;
-            }
-            if (recognition) {
-                try { recognition.start(); } catch(e) { recognition.stop(); }
-            } else {
-                typeWrite("Hardware receptor de frequência sônica ausente neste terminal.");
-            }
-        }
+    if(kd?.value && kd.value!=="X") API_KEY=kd.value;
+    if(hd?.value) history=Array.isArray(hd.value)?hd.value:[];
 
-        function resetCoreClasses() {
-            jarvisCore.className = '';
-            coreText.innerText = "CORE";
-            progress.style.transform = "translateX(-100%)";
-            atualizarTagMemoria();
-        }
+    atualizarMemoria();
+    typeWrite(API_KEY
+      ? "Uplink Supabase estável. Todos os sistemas operacionais, Senhor."
+      : "Conexão em nuvem estabelecida. Aguardando assinatura de API, Senhor."
+    );
+    document.getElementById('cloud-status').textContent='SYNC';
+  } catch(e) {
+    document.getElementById('cloud-status').textContent='FAIL';
+    document.getElementById('cloud-status').style.color='var(--red)';
+    typeWrite("Falha no uplink com o cluster Supabase. Operando em modo local.");
+  }
+}
 
-        function typeWrite(texto) {
-            terminal.innerHTML = `<span style="color: #00ff66;">J.A.R.V.I.S:</span> `;
-            let i = 0;
-            function digitar() {
-                if (i < texto.length) {
-                    terminal.innerHTML += texto.charAt(i);
-                    i++;
-                    setTimeout(digitar, 12);
-                }
-            }
-            document.getElementById('progress').style.transform = "translateX(-100%)";
-            digitar();
-        }
+async function salvarHistorico() {
+  try { await db.from('jarvis_memory').update({value:history}).eq('key','history'); } catch(e){}
+}
+async function salvarChave(chave) {
+  try { await db.from('jarvis_memory').update({value:chave}).eq('key','gemini_key'); } catch(e){}
+}
 
-        function falar(texto) {
-            resetCoreClasses();
-            jarvisCore.classList.add('speaking');
-            coreText.innerText = "TALK";
-            typeWrite(texto);
+function atualizarMemoria() {
+  const total=Math.floor(history.length/2);
+  memTag.textContent=total>0?`MEM: ${total} REC`:'MEM: LIMPA';
+  document.getElementById('mem-count').textContent=total;
+  const pct=Math.min(100,total*8);
+  document.getElementById('mem-bar').style.width=Math.max(5,pct)+'%';
+  document.getElementById('mem-bar-pct').textContent=Math.max(5,pct)+'%';
+}
 
-            const utterance = new SpeechSynthesisUtterance(texto);
-            utterance.lang = 'pt-BR';
-            
-            const voices = window.speechSynthesis.getVoices();
-            if(voices.length > 0) {
-                const melhorVoz = voices.find(v => v.lang.includes('pt') && v.name.includes('Google')) || voices.find(v => v.lang.includes('pt'));
-                if (melhorVoz) utterance.voice = melhorVoz;
-            }
-            
-            utterance.pitch = 0.85; 
-            utterance.rate = 1.15;
+// --- SPEECH ---
+const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+const rec = SR ? new SR() : null;
+if(rec) {
+  rec.lang='pt-BR'; rec.interimResults=false; rec.continuous=false;
+  rec.onstart=()=>{ setCore('listening','LISTEN'); terminal.textContent='Captando canal de voz...'; playTone(300,0.06,'sine'); };
+  rec.onresult=async(e)=>{
+    const cmd=e.results[0][0].transcript;
+    terminal.innerHTML=`<span style="color:var(--text-dim)">SENHOR ▶</span> ${cmd}`;
+    setCore('thinking','PROC');
+    progress.classList.add('running');
+    const res=await pensar(cmd);
+    progress.classList.remove('running');
+    falar(res);
+  };
+  rec.onerror=(e)=>{ if(e.error!=='aborted'){resetCore();typeWrite("Interferência no canal de voz, Senhor.");} };
+  rec.onend=()=>{ if(core.classList.contains('listening')) resetCore(); };
+}
 
-            utterance.onend = () => resetCoreClasses();
-            utterance.onerror = () => resetCoreClasses();
+function handleCoreClick() {
+  if(window.speechSynthesis.speaking){window.speechSynthesis.cancel();resetCore();typeWrite("Transmissão vocal interrompida.");return;}
+  if(!API_KEY){typeWrite("Assinatura digital ausente. Configure sua API Key, Senhor.");setTimeout(configurarChave,800);return;}
+  if(inputMode==='text') return;
+  if(!rec){typeWrite("Reconhecimento de voz não suportado neste ambiente, Senhor.");return;}
+  if(core.classList.contains('listening')){rec.stop();resetCore();return;}
+  try{rec.start();}catch(e){resetCore();}
+}
 
-            window.speechSynthesis.speak(utterance);
-        }
+function setMode(m) {
+  inputMode=m;
+  document.getElementById('btn-voice').classList.toggle('active',m==='voice');
+  document.getElementById('btn-text').classList.toggle('active',m==='text');
+  document.getElementById('text-mode').style.display=m==='text'?'flex':'none';
+}
 
-        // --- INTEGRAÇÃO API GEMINI COM PROTEÇÃO DE ERROS ---
-        async function pensar(comando) {
-            const promptSistema = "Você é o J.A.R.V.I.S., inteligência artificial avançada e assistente pessoal de Tony Stark. Responda em português com linguagem cibernética de ponta, um toque refinado de ironia britânica e elegância impecável. Sempre chame o usuário de 'Senhor'. Como a interação é por voz em tempo real, as respostas devem ser cirúrgicas, diretas e curtas (máximo 2 frases).";
+async function enviarTexto() {
+  const inp=document.getElementById('text-input');
+  const cmd=inp.value.trim();
+  if(!cmd)return;
+  if(!API_KEY){typeWrite("Assinatura digital ausente. Configure sua API Key, Senhor.");setTimeout(configurarChave,600);return;}
+  inp.value='';
+  terminal.innerHTML=`<span style="color:var(--text-dim)">SENHOR ▶</span> ${cmd}`;
+  setCore('thinking','PROC');
+  progress.classList.add('running');
+  const res=await pensar(cmd);
+  progress.classList.remove('running');
+  falar(res);
+}
 
-            historicoConversa.push({ role: "user", parts: [{ text: comando }] });
+document.getElementById('text-input').addEventListener('keydown',e=>{if(e.key==='Enter')enviarTexto();});
 
-            if (historicoConversa.length > 10) historicoConversa.splice(0, 2);
+function setCore(cls,label) {
+  core.className=cls;
+  coreLabel.textContent=label;
+}
+function resetCore() {
+  core.className='';
+  coreLabel.textContent='CORE';
+  progress.classList.remove('running');
+  progress.style.width='0%';
+  atualizarMemoria();
+}
 
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-                
-                const response = await fetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        systemInstruction: {
-                            parts: [{ text: promptSistema }]
-                        },
-                        contents: historicoConversa
-                    })
-                });
+function typeWrite(txt,prefix='J.A.R.V.I.S ▶') {
+  terminal.innerHTML=`<span style="color:var(--green)">${prefix}</span> `;
+  let i=0;
+  const go=()=>{if(i<txt.length){terminal.innerHTML+=txt[i];i++;setTimeout(go,11);}};
+  go();
+}
 
-                const data = await response.json();
-                
-                // Validação de segurança extra para evitar crashes
-                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-                    const respostaTexto = data.candidates[0].content.parts[0].text;
-                    historicoConversa.push({ role: "model", parts: [{ text: respostaTexto }] });
-                    localStorage.setItem('JARVIS_HISTORY', JSON.stringify(historicoConversa));
-                    return respostaTexto;
-                } else {
-                    throw new Error("Formato de resposta corrompido");
-                }
+function falar(txt) {
+  resetCore();
+  setCore('speaking','TALK');
+  typeWrite(txt);
+  const u=new SpeechSynthesisUtterance(txt);
+  u.lang='pt-BR'; u.pitch=0.85; u.rate=1.1;
+  const voices=window.speechSynthesis.getVoices();
+  const v=voices.find(v=>v.lang.includes('pt')&&v.name.toLowerCase().includes('google'))||voices.find(v=>v.lang.includes('pt'));
+  if(v)u.voice=v;
+  u.onend=resetCore; u.onerror=resetCore;
+  window.speechSynthesis.speak(u);
+}
 
-            } catch (error) {
-                console.error(error);
-                historicoConversa.pop(); // Remove o último comando se houver erro de rede
-                return "Banco de dados quânticos inacessível. Certifique-se de que a credencial de segurança de sua API Key está ativa, Senhor.";
-            }
-        }
+async function pensar(cmd) {
+  const sys="Você é J.A.R.V.I.S., inteligência artificial avançada de Tony Stark. Responda em português do Brasil com linguagem precisa, elegância britânica e leve ironia. Trate o usuário sempre como 'Senhor'. Respostas diretas, máximo 2 frases.";
+  history.push({role:"user",parts:[{text:cmd}]});
+  if(history.length>14)history.splice(0,2);
+  try {
+    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:history})
+    });
+    const d=await r.json();
+    const ans=d.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!ans)throw new Error();
+    history.push({role:"model",parts:[{text:ans}]});
+    salvarHistorico();
+    return ans;
+  } catch(e) {
+    history.pop();
+    return "Falha no vetor de processamento neural. Verifique a sua API Key ou conexão, Senhor.";
+  }
+}
 
-        function configurarChave() {
-            const chaveDigitada = prompt("Insira os vetores de acesso da sua Gemini API Key:", API_KEY);
-            if (chaveDigitada !== null) {
-                API_KEY = chaveDigitada.trim();
-                localStorage.setItem('JARVIS_GEMINI_KEY', API_KEY);
-                terminal.innerText = ">>> Chave de criptografia injetada e indexada com sucesso.";
-                playTone(440, 0.08, 'sine');
-            }
-        }
+async function configurarChave() {
+  const k=prompt("Insira sua Gemini API Key:",API_KEY);
+  if(k===null)return;
+  API_KEY=k.trim();
+  typeWrite("Atualizando credenciais no cluster remoto...");
+  await salvarChave(API_KEY);
+  typeWrite(API_KEY?"Assinatura digital registrada com sucesso na nuvem, Senhor.":"Chave removida do sistema.");
+  playTone(520,0.1,'sine');
+}
 
-        function limparMemoria() {
-            historicoConversa = [];
-            localStorage.removeItem('JARVIS_HISTORY');
-            atualizarTagMemoria();
-            terminal.innerText = ">>> Memória volátil purgada. Histórico de dados resetado.";
-            playTone(120, 0.2, 'sawtooth');
-        }
+async function limparMemoria() {
+  history=[];
+  typeWrite("Purgando registros da memória volátil remota...");
+  try { await db.from('jarvis_memory').update({value:[]}).eq('key','history'); } catch(e){}
+  atualizarMemoria();
+  setTimeout(()=>typeWrite("Matriz de memória purgada com sucesso, Senhor."),800);
+  playTone(100,0.15,'sawtooth');
+}
 
-        function atualizarTagMemoria() {
-            const total = historicoConversa.length / 2;
-            memoryTag.innerText = total > 0 ? `MATRIZ: ${total} RECTS` : `MATRIZ: ESTÁVEL`;
-        }
+function playTone(freq,dur,type) {
+  try {
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=type; o.frequency.value=freq;
+    g.gain.setValueAtTime(0.06,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);
+    o.connect(g);g.connect(ac.destination);
+    o.start();o.stop(ac.currentTime+dur);
+  }catch(e){}
+}
 
-        function playTone(freq, duration, type) {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                oscillator.type = type;
-                oscillator.frequency.value = freq;
-                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                oscillator.start();
-                oscillator.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
-        }
+// Arc pulsing fake values
+setInterval(()=>{
+  const v=96+Math.random()*3;
+  document.getElementById('arc-pct').textContent=v.toFixed(0)+'%';
+},3000);
 
-        window.onload = () => {
-            if (window.speechSynthesis.onvoiceschanged !== undefined) {
-                window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-            }
-            atualizarTagMemoria();
-            if (API_KEY) terminal.innerText = "Diagnóstico concluído. Núcleo operacional pronto para as ordens, Senhor.";
-        };
-    </script>
+window.onload=()=>{
+  if(window.speechSynthesis.onvoiceschanged!==undefined)
+    window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+  carregarDados();
+};
+</script>
 </body>
 </html>
