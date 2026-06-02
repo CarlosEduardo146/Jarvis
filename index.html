@@ -3,39 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>J.A.R.V.I.S. - Core Interface</title>
+    <title>J.A.R.V.I.S. - Mark VII Interface</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
-            background-color: #020714;
+            background-color: #01040d;
             color: #00e5ff;
-            font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+            font-family: 'Consolas', 'Courier New', monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             height: 100vh;
-            padding: 30px 20px;
+            padding: 15px;
             overflow: hidden;
-            background-image: 
-                radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.08) 0%, transparent 60%),
-                linear-gradient(rgba(18, 24, 41, 0.4) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(18, 24, 41, 0.4) 1px, transparent 1px);
-            background-size: 100% 100%, 20px 20px, 20px 20px;
+            position: relative;
+        }
+
+        /* Canvas de Partículas Stark Fundo */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        /* HUD Superior */
+        .hud-top {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #008899;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+            padding-bottom: 5px;
+            letter-spacing: 2px;
+            z-index: 2;
         }
 
         .header {
             text-align: center;
-            letter-spacing: 5px;
-            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
-            margin-top: 10px;
+            margin: 10px 0;
+            z-index: 2;
+        }
+        .header h1 { 
+            font-size: 1.8rem; 
+            font-weight: 900; 
+            letter-spacing: 8px;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.8);
         }
 
-        .header h1 { font-size: 2rem; font-weight: 300; }
-        .header p { font-size: 0.65rem; color: #008899; margin-top: 5px; font-weight: bold; }
+        /* --- LAYOUT GRID EM 3 COLUNAS --- */
+        .hud-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 20px;
+            width: 100%;
+            flex-grow: 1;
+            align-items: stretch;
+            z-index: 2;
+            max-width: 1600px;
+        }
 
-        /* Reator Arc Holográfico */
+        /* Painéis Genéricos do HUD */
+        .hud-box {
+            background: rgba(1, 8, 24, 0.6);
+            border: 1px solid rgba(0, 229, 255, 0.15);
+            padding: 15px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+
+        /* Efeito de Cantoneiras Digitais do Stark HUD */
+        .hud-box::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 8px; height: 8px;
+            border-top: 2px solid #00e5ff;
+            border-left: 2px solid #00e5ff;
+        }
+        .hud-box::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 8px; height: 8px;
+            border-bottom: 2px solid #00e5ff;
+            border-right: 2px solid #00e5ff;
+        }
+
+        .hud-box h2 {
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            color: #008899;
+            border-bottom: 1px solid rgba(0, 229, 255, 0.1);
+            padding-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        /* Colunas Laterais */
+        .side-column {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Coluna Central */
+        .center-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Reator Arc Quântico */
         .container-core {
             position: relative;
             display: flex;
@@ -47,17 +138,34 @@
 
         .orbit {
             position: absolute;
-            border: 1px dashed rgba(0, 229, 255, 0.15);
             border-radius: 50%;
-            animation: rotate linear infinite;
+            transform-style: preserve-3d;
+            perspective: 800px;
         }
-        .orbit.outer { width: 290px; height: 290px; animation-duration: 25s; }
-        .orbit.inner { width: 250px; height: 250px; animation-duration: 15s; animation-direction: reverse; }
+        .orbit.outer { 
+            width: 280px; 
+            height: 280px; 
+            border: 2px dashed rgba(0, 229, 255, 0.15); 
+            animation: rotate linear infinite 40s; 
+        }
+        .orbit.mid { 
+            width: 230px; 
+            height: 230px; 
+            border-top: 2px solid rgba(0, 229, 255, 0.4); 
+            border-bottom: 2px solid rgba(0, 229, 255, 0.1); 
+            animation: rotate linear infinite 15s reverse; 
+        }
+        .orbit.inner { 
+            width: 180px; 
+            height: 180px; 
+            border-left: 3px dashed rgba(0, 229, 255, 0.3); 
+            animation: rotate linear infinite 8s; 
+        }
 
         #jarvis-core {
-            width: 200px;
-            height: 200px;
-            border: 2px solid #00e5ff;
+            width: 130px;
+            height: 130px;
+            border: 3px solid #00e5ff;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
@@ -65,194 +173,397 @@
             justify-content: center;
             cursor: pointer;
             position: relative;
-            background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, rgba(2,7,20,0.6) 70%);
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.3), inset 0 0 30px rgba(0, 229, 255, 0.2);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: radial-gradient(circle, rgba(0,229,255,0.2) 0%, rgba(1,4,13,0.9) 75%);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.4), inset 0 0 20px rgba(0, 229, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             -webkit-tap-highlight-color: transparent;
-        }
-
-        #jarvis-core::after {
-            content: '';
-            position: absolute;
-            width: 106%;
-            height: 106%;
-            border: 2px double rgba(0, 229, 255, 0.4);
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.1);
+            z-index: 5;
         }
 
         #jarvis-core span {
-            font-size: 1.2rem;
-            font-weight: 700;
-            letter-spacing: 4px;
-            text-shadow: 0 0 10px #00e5ff;
-            z-index: 2;
-            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px #00e5ff;
         }
 
+        /* Linhas de Energia da Waveform */
         .waveform {
             display: flex;
-            justify-content: center;
+            gap: 3px;
+            height: 12px;
+            margin-top: 8px;
             align-items: center;
-            gap: 4px;
-            height: 20px;
-            margin-top: 10px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: 2;
         }
+        .bar { width: 2px; height: 3px; background-color: #00e5ff; border-radius: 50px; transition: background 0.3s, height 0.1s; }
 
-        .bar {
-            width: 3px;
-            height: 4px;
-            background-color: #00e5ff;
-            border-radius: 2px;
-        }
-
-        /* Estados Dinâmicos do Core */
+        /* ESTADOS DO CORE */
         #jarvis-core.listening {
-            border-color: #ff0055;
-            background: radial-gradient(circle, rgba(255,0,85,0.2) 0%, rgba(2,7,20,0.6) 70%);
-            box-shadow: 0 0 40px rgba(255, 0, 85, 0.6), inset 0 0 30px rgba(255, 0, 85, 0.3);
+            border-color: #ff2a2a;
+            background: radial-gradient(circle, rgba(255,42,42,0.2) 0%, rgba(1,4,13,0.9) 75%);
+            box-shadow: 0 0 40px rgba(255, 42, 42, 0.5), inset 0 0 25px rgba(255, 42, 42, 0.3);
+            transform: scale(1.05);
         }
-        #jarvis-core.listening span { color: #ff0055; text-shadow: 0 0 10px #ff0055; }
-        #jarvis-core.listening .bar { background-color: #ff0055; animation: bounce 0.6s infinite alternate; }
-        #jarvis-core.listening .waveform { opacity: 1; }
-        #jarvis-core.listening .bar:nth-child(2) { animation-delay: 0.15s; }
-        #jarvis-core.listening .bar:nth-child(3) { animation-delay: 0.3s; }
-        #jarvis-core.listening .bar:nth-child(4) { animation-delay: 0.45s; }
+        #jarvis-core.listening span { color: #ff2a2a; text-shadow: 0 0 15px #ff2a2a; }
+        #jarvis-core.listening .bar { background-color: #ff2a2a; animation: audio-bounce 0.4s infinite alternate; }
+        #jarvis-core.listening .bar:nth-child(1) { animation-delay: 0.1s; height: 10px; }
+        #jarvis-core.listening .bar:nth-child(2) { animation-delay: 0.3s; height: 16px; }
+        #jarvis-core.listening .bar:nth-child(3) { animation-delay: 0.0s; height: 8px; }
+        #jarvis-core.listening .bar:nth-child(4) { animation-delay: 0.2s; height: 13px; }
 
         #jarvis-core.thinking {
-            border-color: #bb00ff;
-            background: radial-gradient(circle, rgba(187,0,255,0.2) 0%, rgba(2,7,20,0.6) 70%);
-            box-shadow: 0 0 40px rgba(187, 0, 255, 0.6), inset 0 0 30px rgba(187, 0, 255, 0.3);
-            animation: pulse 0.8s infinite alternate;
+            border-color: #df00ff;
+            background: radial-gradient(circle, rgba(223,0,255,0.2) 0%, rgba(1,4,13,0.9) 75%);
+            box-shadow: 0 0 40px rgba(223, 0, 255, 0.5), inset 0 0 25px rgba(223, 0, 255, 0.3);
+            animation: core-pulse 0.6s infinite alternate;
         }
-        #jarvis-core.thinking span { color: #bb00ff; text-shadow: 0 0 10px #bb00ff; }
+        #jarvis-core.thinking span { color: #df00ff; text-shadow: 0 0 15px #df00ff; }
+        #jarvis-core.thinking .bar { background-color: #df00ff; height: 2px; }
 
         #jarvis-core.speaking {
             border-color: #00ff66;
-            background: radial-gradient(circle, rgba(0,255,102,0.2) 0%, rgba(2,7,20,0.6) 70%);
-            box-shadow: 0 0 40px rgba(0, 255, 102, 0.6), inset 0 0 30px rgba(0, 255, 102, 0.3);
+            background: radial-gradient(circle, rgba(0,255,102,0.2) 0%, rgba(1,4,13,0.9) 75%);
+            box-shadow: 0 0 40px rgba(0, 225, 102, 0.5), inset 0 0 25px rgba(0, 225, 102, 0.3);
         }
-        #jarvis-core.speaking span { color: #00ff66; text-shadow: 0 0 10px #00ff66; }
-        #jarvis-core.speaking .bar { background-color: #00ff66; animation: bounce 0.5s infinite alternate; }
-        #jarvis-core.speaking .waveform { opacity: 1; }
-        #jarvis-core.speaking .bar:nth-child(1) { animation-delay: 0.1s; height: 18px; }
-        #jarvis-core.speaking .bar:nth-child(2) { animation-delay: 0.25s; height: 12px; }
-        #jarvis-core.speaking .bar:nth-child(3) { animation-delay: 0.05s; height: 22px; }
-        #jarvis-core.speaking .bar:nth-child(4) { animation-delay: 0.35s; height: 15px; }
+        #jarvis-core.speaking span { color: #00ff66; text-shadow: 0 0 15px #00ff66; }
+        #jarvis-core.speaking .bar { background-color: #00ff66; animation: audio-bounce 0.35s infinite alternate; }
+        #jarvis-core.speaking .bar:nth-child(1) { height: 12px; animation-delay: 0.05s; }
+        #jarvis-core.speaking .bar:nth-child(2) { height: 20px; animation-delay: 0.2s; }
+        #jarvis-core.speaking .bar:nth-child(3) { height: 15px; animation-delay: 0.1s; }
+        #jarvis-core.speaking .bar:nth-child(4) { height: 8px; animation-delay: 0.25s; }
 
-        /* Painel HUD Inferior */
-        .panel {
+        /* Console Terminal Central */
+        .hud-panel-main {
             width: 100%;
-            max-width: 380px;
-            background: rgba(0, 229, 255, 0.02);
-            border: 1px solid rgba(0, 229, 255, 0.12);
-            border-radius: 12px;
-            padding: 22px;
-            text-align: center;
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 650px;
         }
 
-        .status {
-            font-size: 0.9rem;
-            min-height: 54px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #d0f8ff;
+        .terminal-box {
+            font-size: 0.8rem;
+            min-height: 60px;
+            max-height: 90px;
+            overflow-y: auto;
+            color: #d2f9ff;
             line-height: 1.5;
-            letter-spacing: 0.5px;
+            text-align: left;
+            border-left: 3px solid rgba(0, 229, 255, 0.5);
+            padding-left: 12px;
+            margin-bottom: 10px;
         }
 
-        .btn-config {
-            background: rgba(0, 229, 255, 0.07);
-            border: 1px solid rgba(0, 229, 255, 0.25);
+        /* Barras de Carga de Processamento e Status */
+        .load-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(0, 229, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+        .load-progress {
+            width: 100%;
+            height: 100%;
+            background: #00e5ff;
+            transform: translateX(-100%);
+            transition: transform 0.4s ease;
+        }
+        #jarvis-core.thinking ~ .hud-panel-main .load-progress {
+            animation: load-run 1.5s infinite ease-in-out;
+        }
+
+        .footer-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .btn-action {
+            background: transparent;
+            border: 1px solid rgba(0, 229, 255, 0.4);
             color: #00e5ff;
-            font-size: 0.7rem;
-            margin-top: 15px;
-            padding: 6px 14px;
-            border-radius: 20px;
+            font-size: 0.6rem;
+            padding: 5px 10px;
+            border-radius: 3px;
             cursor: pointer;
             letter-spacing: 1px;
-            font-weight: bold;
-            transition: all 0.2s ease;
             text-transform: uppercase;
+            transition: all 0.2s ease;
+            font-weight: bold;
         }
-        .btn-config:active { background: rgba(0, 229, 255, 0.2); }
+        .btn-action:hover {
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
+        }
+        .memory-status { font-size: 0.6rem; color: #006677; font-weight: bold; letter-spacing: 1px; }
 
-        /* Animações Keyframes */
+        /* Elementos de Diagnóstico de Barras */
+        .diag-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .diag-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            color: #d2f9ff;
+            letter-spacing: 1px;
+        }
+        .diag-progress-bg {
+            width: 100%;
+            height: 5px;
+            background: rgba(0, 229, 255, 0.05);
+        }
+        .diag-progress-fill {
+            height: 100%;
+            background: #00e5ff;
+            box-shadow: 0 0 6px rgba(0, 229, 255, 0.6);
+        }
+
+        /* Elementos da Matriz Dinâmica / Logs */
+        .matrix-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.65rem;
+            border-bottom: 1px dashed rgba(0,229,255,0.05);
+            padding: 4px 0;
+        }
+        .status-secure { color: #00ff66; }
+        .status-active { color: #00e5ff; }
+        .status-warn { color: #ffaa00; }
+        .status-danger { color: #ff2a2a; }
+
+        .log-box {
+            font-size: 0.6rem;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow-hidden: scroll;
+        }
+
+        /* Keyframes Globais */
         @keyframes rotate { 100% { transform: rotate(360deg); } }
-        @keyframes pulse { 0% { transform: scale(1); } 100% { transform: scale(1.04); } }
-        @keyframes bounce { 0% { height: 4px; } 100% { height: 22px; } }
+        @keyframes core-pulse { 0% { transform: scale(1); } 100% { transform: scale(1.03); } }
+        @keyframes audio-bounce { 0% { height: 3px; } 100% { height: 18px; } }
+        @keyframes load-run { 0% { transform: translateX(-100%); } 50% { transform: translateX(0%); } 100% { transform: translateX(100%); } }
+
+        /* Responsividade Básica Mobile */
+        @media (max-width: 900px) {
+            .hud-container { grid-template-columns: 1fr; }
+            .side-column { display: none; }
+            body { overflow-y: auto; height: auto; }
+        }
     </style>
 </head>
 <body>
 
+    <canvas id="particle-canvas"></canvas>
+
+    <div class="hud-top">
+        <span id="sys-time">SYS.LOC: 00:00:00</span>
+        <span>SECURE UPLINK // PROTOCOLO MARK VII</span>
+    </div>
+
     <div class="header">
         <h1>J.A.R.V.I.S.</h1>
-        <p>STARK INDUSTRIES — AI PROTOCOL</p>
     </div>
 
-    <div class="container-core">
-        <div class="orbit outer"></div>
-        <div class="orbit inner"></div>
-        <div id="jarvis-core" onclick="handleCoreClick()">
-            <span id="core-text">ONLINE</span>
-            <div class="waveform">
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
-                <div class="bar"></div>
+    <div class="hud-container">
+        
+        <div class="side-column">
+            <div class="hud-box">
+                <h2>System Diagnostics</h2>
+                <div class="diag-item">
+                    <div class="diag-label"><span>CPU CORE</span><span>73%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 73%;"></div></div>
+                </div>
+                <div class="diag-item">
+                    <div class="diag-label"><span>MEMORY</span><span>58%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 58%;"></div></div>
+                </div>
+                <div class="diag-item">
+                    <div class="diag-label"><span>GPU RENDER</span><span>91%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 91%; background: #00ff66;"></div></div>
+                </div>
+                <div class="diag-item">
+                    <div class="diag-label"><span>NETWORK I/O</span><span>34%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 34%;"></div></div>
+                </div>
+            </div>
+
+            <div class="hud-box">
+                <h2>Threat Matrix</h2>
+                <div class="matrix-row"><span>SECTOR 7</span><span class="status-secure">SECURE</span></div>
+                <div class="matrix-row"><span>PERIMETER</span><span class="status-active">ACTIVE</span></div>
+                <div class="matrix-row"><span>AIR TRAFFIC</span><span class="status-secure">NOMINAL</span></div>
+                <div class="matrix-row"><span>SIGNAL JAM</span><span class="status-danger">DETECTED</span></div>
             </div>
         </div>
-    </div>
 
-    <div class="panel">
-        <div class="status" id="status">Iniciando interface holográfica...</div>
-        <button class="btn-config" onclick="configurarChave()">Ajustar Diretrizes de API</button>
+        <div class="center-column">
+            <div class="container-core">
+                <div class="orbit outer"></div>
+                <div class="orbit mid"></div>
+                <div class="orbit inner"></div>
+                <div id="jarvis-core" onclick="handleCoreClick()">
+                    <span id="core-text">CORE</span>
+                    <div class="waveform">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hud-box hud-panel-main">
+                <h2>J.A.R.V.I.S. Interface</h2>
+                <div class="terminal-box" id="terminal">Sistemas online. Inicialização vocal pendente, Senhor...</div>
+                <div class="load-bar"><div class="load-progress" id="progress"></div></div>
+                
+                <div class="footer-controls">
+                    <button class="btn-action" onclick="configurarChave()">API KEY</button>
+                    <span class="memory-status" id="memory-tag">MEMÓRIA: LIMPA</span>
+                    <button class="btn-action" onclick="limparMemoria()" style="border-color: rgba(255,42,42,0.4); color: #ff2a2a;">RESET</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="side-column">
+            <div class="hud-box">
+                <h2>Suit Status</h2>
+                <div class="diag-item">
+                    <div class="diag-label"><span>ARC REACTOR</span><span>97%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 97%;"></div></div>
+                </div>
+                <div class="diag-item">
+                    <div class="diag-label"><span>REPULSORS</span><span>84%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 84%;"></div></div>
+                </div>
+                <div class="diag-item">
+                    <div class="diag-label"><span>UNIBEAM</span><span>100%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 100%; background: #ffaa00;"></div></div>
+                </div>
+                <div class="diag-item">
+                    <div class="diag-label"><span>SHIELDS</span><span>62%</span></div>
+                    <div class="diag-progress-bg"><div class="diag-progress-fill" style="width: 62%;"></div></div>
+                </div>
+            </div>
+
+            <div class="hud-box">
+                <h2>Activity Log</h2>
+                <div class="log-box">
+                    <div>[08:42:11] <span class="status-active">[INFO]</span> Arc reactor recalibrated.</div>
+                    <div>[08:39:54] <span class="status-secure">[OK]</span> Perimeter scan complete.</div>
+                    <div>[08:37:02] <span class="status-warn">[WARN]</span> Unknown signal intercepted.</div>
+                    <div>[08:34:17] <span class="status-secure">[OK]</span> Mark VII deployed successfully.</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        const statusText = document.getElementById('status');
+        const terminal = document.getElementById('terminal');
         const jarvisCore = document.getElementById('jarvis-core');
         const coreText = document.getElementById('core-text');
+        const progress = document.getElementById('progress');
+        const memoryTag = document.getElementById('memory-tag');
         
         let API_KEY = localStorage.getItem('JARVIS_GEMINI_KEY') || "";
+        let historicoConversa = JSON.parse(localStorage.getItem('JARVIS_HISTORY')) || [];
 
-        // Inicialização Estabilizada do Reconhecimento de Voz Mobile
+        // --- SISTEMA DE PARTÍCULAS EM CANVAS ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.2;
+                this.speedY = (Math.random() - 0.5) * 0.2;
+                this.alpha = Math.random() * 0.4 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = '#00e5ff';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            for(let i = 0; i < 50; i++) particles.push(new Particle());
+        }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.strokeStyle = 'rgba(0, 229, 255, 0.01)';
+            ctx.lineWidth = 1;
+            for(let i = 0; i < canvas.width; i += 50) {
+                ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for(let i = 0; i < canvas.height; i += 50) {
+                ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+            }
+            
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        initParticles();
+        animateParticles();
+
+        // Relógio do HUD
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('sys-time').innerText = `SYS.TIME: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+        }, 1000);
+
+        // API de Reconhecimento de Voz
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = SpeechRecognition ? new SpeechRecognition() : null;
 
         if (recognition) {
             recognition.lang = 'pt-BR';
             recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
 
             recognition.onstart = () => {
                 resetCoreClasses();
                 jarvisCore.classList.add('listening');
-                coreText.innerText = "ESCUTANDO";
-                statusText.innerText = "Transmissão aberta. Aguardando suas ordens...";
-                playTone(120, 0.08, 'sine'); // Bip sutil de início
-            };
-
-            recognition.onend = () => {
-                if (!jarvisCore.classList.contains('thinking') && !jarvisCore.classList.contains('speaking')) {
-                    resetCoreClasses();
-                }
+                coreText.innerText = "LISTEN";
+                terminal.innerText = ">>> Captando canais de áudio locais...";
+                playTone(220, 0.04, 'sine');
             };
 
             recognition.onresult = async (event) => {
                 const comando = event.results[0][0].transcript;
-                statusText.innerText = `Senhor: "${comando}"`;
+                terminal.innerHTML = `<span style="color: #008899;">Senhor:</span> ${comando}`;
                 
                 resetCoreClasses();
                 jarvisCore.classList.add('thinking');
-                coreText.innerText = "ANALISANDO";
+                coreText.innerText = "LOAD";
+                progress.style.transform = "translateX(0%)";
 
                 const resposta = await pensar(comando);
                 falar(resposta);
@@ -260,121 +571,141 @@
 
             recognition.onerror = (e) => {
                 resetCoreClasses();
-                if(e.error !== 'no-speech') {
-                    statusText.innerText = "Captação interrompida ou sem sinal de voz, Senhor.";
-                    playTone(80, 0.15, 'sawtooth'); // Som de aviso
-                } else {
-                    statusText.innerText = "Aguardando novos comandos. Toque no Reator Arc.";
+                if (e.error !== 'no-speech') {
+                    typeWrite("Interferência magnética severa detectada no decodificador de áudio, Senhor.");
+                    playTone(90, 0.25, 'sawtooth');
                 }
             };
         }
 
-        // Garante o funcionamento de áudio em celulares com restrições de clique (iOS/Android)
         function handleCoreClick() {
-            // Desbloqueia o sintetizador de voz caso esteja preso
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
                 resetCoreClasses();
-                statusText.innerText = "Protocolo de fala interrompido pelo usuário.";
+                typeWrite("Modulação vocal cancelada por demanda.");
                 return;
             }
-
             if (!API_KEY) {
-                statusText.innerText = "Sistemas inoperantes. Configuração de chave requerida.";
+                typeWrite("Acesso negado. Insira a assinatura digital de API.");
                 configurarChave();
                 return;
             }
-
             if (recognition) {
-                try { 
-                    recognition.start(); 
-                } catch(e) {
-                    // Previne quebra caso já esteja rodando
-                    recognition.stop();
-                }
+                try { recognition.start(); } catch(e) { recognition.stop(); }
             } else {
-                statusText.innerText = "Este dispositivo não suporta entrada de áudio nativa.";
+                typeWrite("Hardware receptor de frequência sônica ausente neste terminal.");
             }
         }
 
         function resetCoreClasses() {
             jarvisCore.className = '';
-            coreText.innerText = "ONLINE";
+            coreText.innerText = "CORE";
+            progress.style.transform = "translateX(-100%)";
+            atualizarTagMemoria();
         }
 
-        // Sintetizador de Áudio Aprimorado para Celular
+        function typeWrite(texto) {
+            terminal.innerHTML = `<span style="color: #00ff66;">J.A.R.V.I.S:</span> `;
+            let i = 0;
+            function digitar() {
+                if (i < texto.length) {
+                    terminal.innerHTML += texto.charAt(i);
+                    i++;
+                    setTimeout(digitar, 12);
+                }
+            }
+            document.getElementById('progress').style.transform = "translateX(-100%)";
+            digitar();
+        }
+
         function falar(texto) {
             resetCoreClasses();
             jarvisCore.classList.add('speaking');
-            coreText.innerText = "TRANSMITINDO";
-            statusText.innerText = texto;
+            coreText.innerText = "TALK";
+            typeWrite(texto);
 
-            // Tratamento contra bugs do Google TTS mobile que cortam falas longas
             const utterance = new SpeechSynthesisUtterance(texto);
             utterance.lang = 'pt-BR';
             
-            // Busca voz do sistema local
             const voices = window.speechSynthesis.getVoices();
             if(voices.length > 0) {
-                // Tenta selecionar vozes masculinas mais naturais se disponíveis
-                const googlePt = voices.find(v => v.lang.includes('pt') && v.name.includes('Google'));
-                utterance.voice = googlePt || voices.find(v => v.lang.includes('pt')) || voices[0];
+                const melhorVoz = voices.find(v => v.lang.includes('pt') && v.name.includes('Google')) || voices.find(v => v.lang.includes('pt'));
+                if (melhorVoz) utterance.voice = melhorVoz;
             }
             
-            utterance.pitch = 0.88; 
-            utterance.rate = 1.12;
+            utterance.pitch = 0.85; 
+            utterance.rate = 1.15;
 
-            utterance.onend = () => {
-                resetCoreClasses();
-                statusText.innerText = "Sistemas em prontidão, Senhor.";
-            };
-
-            utterance.onerror = () => {
-                resetCoreClasses();
-            };
+            utterance.onend = () => resetCoreClasses();
+            utterance.onerror = () => resetCoreClasses();
 
             window.speechSynthesis.speak(utterance);
         }
 
-        // Requisição Segura e Otimizada para API do Gemini 1.5 Flash
+        // --- INTEGRAÇÃO API GEMINI COM PROTEÇÃO DE ERROS ---
         async function pensar(comando) {
-            const promptSistema = "Você é o J.A.R.V.I.S., assistente virtual cibernético de Tony Stark. Responda de forma extremamente culta, tecnológica, sutilmente sarcástica e britânica. Use termos como 'carregando diagnósticos', 'bancos de dados' quando pertinente e sempre trate o usuário como 'Senhor'. Escreva respostas curtas, diretas e fáceis de falar por voz.";
+            const promptSistema = "Você é o J.A.R.V.I.S., inteligência artificial avançada e assistente pessoal de Tony Stark. Responda em português com linguagem cibernética de ponta, um toque refinado de ironia britânica e elegância impecável. Sempre chame o usuário de 'Senhor'. Como a interação é por voz em tempo real, as respostas devem ser cirúrgicas, diretas e curtas (máximo 2 frases).";
+
+            historicoConversa.push({ role: "user", parts: [{ text: comando }] });
+
+            if (historicoConversa.length > 10) historicoConversa.splice(0, 2);
 
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                
                 const response = await fetch(url, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        contents: [{
-                            parts: [{ text: `${promptSistema}\n\nEntrada do Usuário: ${comando}` }]
-                        }]
+                        systemInstruction: {
+                            parts: [{ text: promptSistema }]
+                        },
+                        contents: historicoConversa
                     })
                 });
 
                 const data = await response.json();
-                if (data.candidates && data.candidates[0].content.parts[0].text) {
-                    return data.candidates[0].content.parts[0].text;
+                
+                // Validação de segurança extra para evitar crashes
+                if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+                    const respostaTexto = data.candidates[0].content.parts[0].text;
+                    historicoConversa.push({ role: "model", parts: [{ text: respostaTexto }] });
+                    localStorage.setItem('JARVIS_HISTORY', JSON.stringify(historicoConversa));
+                    return respostaTexto;
                 } else {
-                    return "Dados corrompidos na matriz de resposta. Tente novamente, Senhor.";
+                    throw new Error("Formato de resposta corrompido");
                 }
+
             } catch (error) {
                 console.error(error);
-                return "Falha crítica de uplink. Sua chave de API pode estar incorreta ou instável, Senhor.";
+                historicoConversa.pop(); // Remove o último comando se houver erro de rede
+                return "Banco de dados quânticos inacessível. Certifique-se de que a credencial de segurança de sua API Key está ativa, Senhor.";
             }
         }
 
         function configurarChave() {
-            const chaveDigitada = prompt("Insira sua Gemini API Key (Salva localmente de forma criptografada no aparelho):", API_KEY);
+            const chaveDigitada = prompt("Insira os vetores de acesso da sua Gemini API Key:", API_KEY);
             if (chaveDigitada !== null) {
                 API_KEY = chaveDigitada.trim();
                 localStorage.setItem('JARVIS_GEMINI_KEY', API_KEY);
-                statusText.innerText = "Chave de criptografia injetada com sucesso. Sistemas operacionais.";
-                playTone(440, 0.1, 'sine');
+                terminal.innerText = ">>> Chave de criptografia injetada e indexada com sucesso.";
+                playTone(440, 0.08, 'sine');
             }
         }
 
-        // Gerador de efeitos sonoros virtuais (Web Audio API)
+        function limparMemoria() {
+            historicoConversa = [];
+            localStorage.removeItem('JARVIS_HISTORY');
+            atualizarTagMemoria();
+            terminal.innerText = ">>> Memória volátil purgada. Histórico de dados resetado.";
+            playTone(120, 0.2, 'sawtooth');
+        }
+
+        function atualizarTagMemoria() {
+            const total = historicoConversa.length / 2;
+            memoryTag.innerText = total > 0 ? `MATRIZ: ${total} RECTS` : `MATRIZ: ESTÁVEL`;
+        }
+
         function playTone(freq, duration, type) {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -382,8 +713,8 @@
                 const gainNode = audioCtx.createGain();
                 oscillator.type = type;
                 oscillator.frequency.value = freq;
-                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
                 oscillator.connect(gainNode);
                 gainNode.connect(audioCtx.destination);
                 oscillator.start();
@@ -391,18 +722,12 @@
             } catch(e) {}
         }
 
-        // Inicialização de Interface
         window.onload = () => {
-            // Corrige o carregamento assíncrono de vozes em navegadores mobile
             if (window.speechSynthesis.onvoiceschanged !== undefined) {
                 window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
             }
-            
-            if (!API_KEY) { 
-                statusText.innerText = "Sistemas em espera. Configure as diretrizes de API Key para inicializar.";
-            } else {
-                statusText.innerText = "Todos os sistemas operacionais, Senhor. Toque no reator.";
-            }
+            atualizarTagMemoria();
+            if (API_KEY) terminal.innerText = "Diagnóstico concluído. Núcleo operacional pronto para as ordens, Senhor.";
         };
     </script>
 </body>
