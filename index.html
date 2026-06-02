@@ -37,7 +37,6 @@ body{
   overflow:hidden;
 }
 
-/* Fundo Grid */
 .grid-bg{
   position:fixed;inset:0;z-index:0;
   background-image:
@@ -48,16 +47,13 @@ body{
 }
 @keyframes grid-drift{0%{background-position:0 0;}100%{background-position:40px 40px;}}
 
-/* Scanline */
 .scanline{
   position:fixed;inset:0;z-index:1;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);
 }
 
-/* Canvas Radar */
 #radar-canvas{position:fixed;top:0;right:0;width:260px;height:260px;z-index:1;opacity:0.12;pointer-events:none;}
 
-/* HUD Top Bar */
 .hud-top{
   position:relative;z-index:10;
   display:flex;justify-content:space-between;align-items:center;
@@ -69,14 +65,12 @@ body{
 .hud-top .logo{font-size:13px;font-weight:700;letter-spacing:5px;color:var(--cyan);text-shadow:0 0 15px rgba(0,229,255,0.5);}
 .hud-top .sys{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
 
-/* Status Dots */
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:5px;animation:blink 2s ease-in-out infinite;}
 .dot.green{background:var(--green);box-shadow:0 0 6px var(--green);}
 .dot.cyan{background:var(--cyan);box-shadow:0 0 6px var(--cyan);}
 .dot.red{background:var(--red);box-shadow:0 0 6px var(--red);}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
 
-/* MAIN CONTENT */
 .main{
   flex:1;display:flex;flex-direction:column;align-items:center;
   padding:0 16px 16px;position:relative;z-index:10;
@@ -84,46 +78,18 @@ body{
   justify-content:space-between;
 }
 
-/* CORE ARC REACTOR */
 .core-wrap{
   position:relative;display:flex;align-items:center;justify-content:center;
   margin-top:10px;flex-shrink:0;
 }
 .ring{position:absolute;border-radius:50%;}
-.ring-1{
-  width:180px;height:180px;
-  border:1px solid rgba(0,229,255,0.08);
-  animation:spin 60s linear infinite;
-}
-.ring-2{
-  width:160px;height:160px;
-  border-top:1px solid rgba(0,229,255,0.25);
-  border-right:1px solid transparent;
-  border-bottom:1px solid rgba(0,229,255,0.1);
-  border-left:1px solid transparent;
-  animation:spin 18s linear infinite reverse;
-}
-.ring-3{
-  width:140px;height:140px;
-  border-top:2px dashed rgba(0,229,255,0.2);
-  border-right:2px dashed transparent;
-  border-bottom:2px dashed rgba(0,229,255,0.08);
-  border-left:2px dashed transparent;
-  animation:spin 8s linear infinite;
-}
-.ring-4{
-  width:118px;height:118px;
-  border:1px solid rgba(0,229,255,0.15);
-  animation:spin 4s linear infinite reverse;
-}
-
+.ring-1{width:180px;height:180px;border:1px solid rgba(0,229,255,0.08);animation:spin 60s linear infinite;}
+.ring-2{width:160px;height:160px;border-top:1px solid rgba(0,229,255,0.25);border-right:1px solid transparent;border-bottom:1px solid rgba(0,229,255,0.1);border-left:1px solid transparent;animation:spin 18s linear infinite reverse;}
+.ring-3{width:140px;height:140px;border-top:2px dashed rgba(0,229,255,0.2);border-right:2px dashed transparent;border-bottom:2px dashed rgba(0,229,255,0.08);border-left:2px dashed transparent;animation:spin 8s linear infinite;}
+.ring-4{width:118px;height:118px;border:1px solid rgba(0,229,255,0.15);animation:spin 4s linear infinite reverse;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* Corner ticks on outermost ring */
-.ring-1::before,.ring-1::after{
-  content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--cyan);
-  box-shadow:0 0 8px var(--cyan);top:50%;left:0;transform:translate(-50%,-50%);
-}
+.ring-1::before,.ring-1::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px var(--cyan);top:50%;left:0;transform:translate(-50%,-50%);}
 .ring-1::after{left:auto;right:0;transform:translate(50%,-50%);}
 
 #core{
@@ -140,37 +106,21 @@ body{
 .bars{display:flex;gap:3px;align-items:flex-end;height:14px;}
 .b{width:3px;background:var(--cyan);border-radius:2px;height:3px;transition:all 0.2s;}
 
-/* STATES */
-#core.listening{
-  border-color:var(--red);
-  background:radial-gradient(circle at center,rgba(255,34,68,0.2) 0%,rgba(0,5,15,0.95) 65%);
-  box-shadow:0 0 35px rgba(255,34,68,0.4),inset 0 0 20px rgba(255,34,68,0.15);
-  animation:pulse-red 0.8s ease-in-out infinite alternate;
-}
+#core.listening{border-color:var(--red);background:radial-gradient(circle at center,rgba(255,34,68,0.2) 0%,rgba(0,5,15,0.95) 65%);box-shadow:0 0 35px rgba(255,34,68,0.4),inset 0 0 20px rgba(255,34,68,0.15);animation:pulse-red 0.8s ease-in-out infinite alternate;}
 #core.listening #core-label{color:var(--red);text-shadow:0 0 10px var(--red);}
 #core.listening .b{background:var(--red);}
 @keyframes pulse-red{from{box-shadow:0 0 25px rgba(255,34,68,0.4);}to{box-shadow:0 0 50px rgba(255,34,68,0.7);}}
 
-#core.thinking{
-  border-color:var(--purple);
-  background:radial-gradient(circle at center,rgba(200,0,255,0.18) 0%,rgba(0,5,15,0.95) 65%);
-  box-shadow:0 0 35px rgba(200,0,255,0.4),inset 0 0 20px rgba(200,0,255,0.12);
-  animation:pulse-purple 0.5s ease-in-out infinite alternate;
-}
+#core.thinking{border-color:var(--purple);background:radial-gradient(circle at center,rgba(200,0,255,0.18) 0%,rgba(0,5,15,0.95) 65%);box-shadow:0 0 35px rgba(200,0,255,0.4),inset 0 0 20px rgba(200,0,255,0.12);animation:pulse-purple 0.5s ease-in-out infinite alternate;}
 #core.thinking #core-label{color:var(--purple);text-shadow:0 0 10px var(--purple);}
 #core.thinking .b{background:var(--purple);animation:think-bars 1s ease-in-out infinite alternate;}
 @keyframes think-bars{from{height:2px;}to{height:14px;}}
 @keyframes pulse-purple{from{box-shadow:0 0 25px rgba(200,0,255,0.4);}to{box-shadow:0 0 55px rgba(200,0,255,0.7);}}
 
-#core.speaking{
-  border-color:var(--green);
-  background:radial-gradient(circle at center,rgba(0,255,136,0.18) 0%,rgba(0,5,15,0.95) 65%);
-  box-shadow:0 0 35px rgba(0,255,136,0.4),inset 0 0 20px rgba(0,255,136,0.12);
-}
+#core.speaking{border-color:var(--green);background:radial-gradient(circle at center,rgba(0,255,136,0.18) 0%,rgba(0,5,15,0.95) 65%);box-shadow:0 0 35px rgba(0,255,136,0.4),inset 0 0 20px rgba(0,255,136,0.12);}
 #core.speaking #core-label{color:var(--green);text-shadow:0 0 10px var(--green);}
 #core.speaking .b{background:var(--green);}
 
-/* Speaking wave bars */
 #core.speaking .b:nth-child(1){animation:wave 0.4s 0s infinite alternate;}
 #core.speaking .b:nth-child(2){animation:wave 0.4s 0.1s infinite alternate;}
 #core.speaking .b:nth-child(3){animation:wave 0.4s 0.05s infinite alternate;}
@@ -178,7 +128,6 @@ body{
 #core.speaking .b:nth-child(5){animation:wave 0.4s 0.08s infinite alternate;}
 @keyframes wave{from{height:3px;}to{height:14px;}}
 
-/* Listening bars */
 #core.listening .b:nth-child(1){animation:wave2 0.35s 0.02s infinite alternate;}
 #core.listening .b:nth-child(2){animation:wave2 0.35s 0.12s infinite alternate;}
 #core.listening .b:nth-child(3){animation:wave2 0.35s 0.06s infinite alternate;}
@@ -186,7 +135,6 @@ body{
 #core.listening .b:nth-child(5){animation:wave2 0.35s 0.09s infinite alternate;}
 @keyframes wave2{from{height:3px;}to{height:12px;}}
 
-/* HUD PANELS */
 .panel{
   width:100%;background:var(--bg2);
   border:1px solid rgba(0,229,255,0.12);
@@ -198,7 +146,6 @@ body{
 .panel::after{content:'';position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
 .panel-title{font-family:var(--mono);font-size:9px;letter-spacing:3px;color:var(--text-dim);margin-bottom:10px;text-transform:uppercase;}
 
-/* TERMINAL */
 #terminal{
   font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--text);
   min-height:52px;max-height:80px;overflow-y:auto;
@@ -208,38 +155,23 @@ body{
 #terminal::-webkit-scrollbar{width:3px;}
 #terminal::-webkit-scrollbar-thumb{background:rgba(0,229,255,0.2);border-radius:3px;}
 
-/* Progress bar */
 .progress-track{width:100%;height:2px;background:rgba(0,229,255,0.08);border-radius:1px;overflow:hidden;margin-top:10px;}
 .progress-fill{height:100%;background:linear-gradient(90deg,transparent,var(--cyan));width:0%;transition:width 0.4s;}
 .progress-fill.running{animation:progress-run 1.5s ease-in-out infinite;}
 @keyframes progress-run{0%{width:0%;margin-left:0;}50%{width:60%;}100%{width:0%;margin-left:100%;}}
 
-/* Bottom Controls */
-.controls{
-  width:100%;display:flex;justify-content:space-between;align-items:center;
-  margin-top:10px;gap:8px;
-}
-.btn{
-  background:transparent;border:1px solid rgba(0,229,255,0.2);
-  color:var(--cyan);font-family:var(--mono);font-size:9px;
-  padding:6px 12px;cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;
-  transition:all 0.2s;border-radius:0;flex:1;
-}
+.controls{width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:10px;gap:8px;}
+.btn{background:transparent;border:1px solid rgba(0,229,255,0.2);color:var(--cyan);font-family:var(--mono);font-size:9px;padding:6px 12px;cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.2s;border-radius:0;flex:1;}
 .btn:hover,.btn:active{background:rgba(0,229,255,0.08);border-color:rgba(0,229,255,0.5);}
 .btn.danger{border-color:rgba(255,34,68,0.3);color:var(--red);}
 .btn.danger:hover,.btn.danger:active{background:rgba(255,34,68,0.08);border-color:rgba(255,34,68,0.5);}
 
-/* STATUS ROW */
-.status-row{
-  width:100%;display:flex;justify-content:space-between;
-  font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;
-}
+.status-row{width:100%;display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
 .stat-item{display:flex;flex-direction:column;align-items:center;gap:3px;}
 .stat-val{font-size:13px;font-weight:700;font-family:var(--font);color:var(--cyan);}
 .stat-val.ok{color:var(--green);}
 .stat-val.warn{color:#ffaa00;}
 
-/* DIAG BARS */
 .diag{display:flex;flex-direction:column;gap:6px;width:100%;}
 .diag-row{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:9px;color:var(--text-dim);}
 .diag-label{min-width:70px;letter-spacing:1px;}
@@ -249,41 +181,71 @@ body{
 .diag-fill.warn{background:#ffaa00;box-shadow:0 0 4px rgba(255,170,0,0.5);}
 .diag-num{min-width:30px;text-align:right;}
 
-/* TEXT INPUT */
-.input-row{
-  width:100%;display:flex;gap:8px;align-items:center;
-  margin-top:4px;
-}
-#text-input{
-  flex:1;background:rgba(0,229,255,0.04);
-  border:1px solid rgba(0,229,255,0.2);
-  color:var(--text);font-family:var(--mono);font-size:12px;
-  padding:8px 12px;outline:none;
-  caret-color:var(--cyan);
-}
+.input-row{width:100%;display:flex;gap:8px;align-items:center;margin-top:4px;}
+#text-input{flex:1;background:rgba(0,229,255,0.04);border:1px solid rgba(0,229,255,0.2);color:var(--text);font-family:var(--mono);font-size:12px;padding:8px 12px;outline:none;caret-color:var(--cyan);}
 #text-input:focus{border-color:rgba(0,229,255,0.5);background:rgba(0,229,255,0.06);}
 #text-input::placeholder{color:var(--text-dim);}
-.btn-send{
-  background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);
-  color:var(--cyan);font-family:var(--mono);font-size:11px;
-  padding:8px 14px;cursor:pointer;letter-spacing:1px;
-  transition:all 0.2s;flex-shrink:0;
-}
+.btn-send{background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.3);color:var(--cyan);font-family:var(--mono);font-size:11px;padding:8px 14px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;flex-shrink:0;}
 .btn-send:hover,.btn-send:active{background:rgba(0,229,255,0.2);}
 
-/* MODE TOGGLE */
-.mode-toggle{
-  display:flex;gap:1px;width:100%;margin-bottom:4px;
-}
-.mode-btn{
-  flex:1;background:transparent;border:1px solid rgba(0,229,255,0.12);
-  color:var(--text-dim);font-family:var(--mono);font-size:9px;
-  padding:5px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;text-transform:uppercase;
-}
+.mode-toggle{display:flex;gap:1px;width:100%;margin-bottom:4px;}
+.mode-btn{flex:1;background:transparent;border:1px solid rgba(0,229,255,0.12);color:var(--text-dim);font-family:var(--mono);font-size:9px;padding:5px;cursor:pointer;letter-spacing:1px;transition:all 0.2s;text-transform:uppercase;}
 .mode-btn.active{background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.4);color:var(--cyan);}
 
-/* Memory tag */
 #memory-tag{font-family:var(--mono);font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+
+/* MODEL SELECTOR */
+.model-select{
+  background:rgba(0,229,255,0.04);
+  border:1px solid rgba(0,229,255,0.2);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:9px;
+  padding:4px 8px;
+  outline:none;
+  letter-spacing:1px;
+  cursor:pointer;
+  width:100%;
+  margin-bottom:6px;
+}
+.model-select option{background:#00050f;color:var(--text);}
+
+/* API KEY MODAL */
+.modal-overlay{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(0,5,15,0.92);
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(8px);
+}
+.modal-overlay.hidden{display:none;}
+.modal-box{
+  width:calc(100% - 40px);max-width:380px;
+  background:rgba(0,12,28,0.98);
+  border:1px solid rgba(0,229,255,0.25);
+  padding:24px 20px;
+  position:relative;
+}
+.modal-box::before{content:'';position:absolute;top:-1px;left:-1px;width:12px;height:12px;border-top:2px solid var(--cyan);border-left:2px solid var(--cyan);}
+.modal-box::after{content:'';position:absolute;bottom:-1px;right:-1px;width:12px;height:12px;border-bottom:2px solid var(--cyan);border-right:2px solid var(--cyan);}
+.modal-title{font-family:var(--mono);font-size:11px;letter-spacing:3px;color:var(--cyan);margin-bottom:6px;}
+.modal-sub{font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-bottom:16px;line-height:1.6;}
+.modal-sub a{color:var(--cyan);text-decoration:none;}
+.modal-input{
+  width:100%;background:rgba(0,229,255,0.04);
+  border:1px solid rgba(0,229,255,0.25);
+  color:var(--text);font-family:var(--mono);font-size:11px;
+  padding:10px 12px;outline:none;
+  caret-color:var(--cyan);margin-bottom:4px;
+}
+.modal-input:focus{border-color:rgba(0,229,255,0.6);}
+.modal-hint{font-family:var(--mono);font-size:9px;color:var(--text-dim);margin-bottom:16px;}
+.modal-hint.ok{color:var(--green);}
+.modal-hint.err{color:var(--red);}
+.modal-actions{display:flex;gap:8px;}
+.modal-btn{flex:1;background:transparent;border:1px solid rgba(0,229,255,0.25);color:var(--cyan);font-family:var(--mono);font-size:9px;padding:8px;cursor:pointer;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.2s;}
+.modal-btn:hover{background:rgba(0,229,255,0.08);border-color:rgba(0,229,255,0.5);}
+.modal-btn.primary{background:rgba(0,229,255,0.12);border-color:rgba(0,229,255,0.4);}
+.modal-btn.primary:hover{background:rgba(0,229,255,0.2);}
 
 @media(min-width:600px){
   .main{max-width:420px;margin:0 auto;padding:0 0 16px;}
@@ -301,6 +263,24 @@ body{
 <div class="scanline"></div>
 <canvas id="radar-canvas"></canvas>
 
+<!-- API KEY MODAL -->
+<div class="modal-overlay hidden" id="api-modal">
+  <div class="modal-box">
+    <div class="modal-title">/// CONFIGURAR OPENAI API KEY</div>
+    <div class="modal-sub">
+      Obtenha sua chave em:<br>
+      <a href="https://platform.openai.com/api-keys" target="_blank">platform.openai.com/api-keys</a><br><br>
+      A chave deve começar com <span style="color:var(--cyan)">sk-</span>
+    </div>
+    <input class="modal-input" id="modal-key-input" type="text" placeholder="sk-..." autocomplete="off" autocorrect="off" spellcheck="false" />
+    <div class="modal-hint" id="modal-hint">Cole sua chave OpenAI acima</div>
+    <div class="modal-actions">
+      <button class="modal-btn" onclick="fecharModal()">CANCELAR</button>
+      <button class="modal-btn primary" onclick="salvarModalKey()">CONFIRMAR</button>
+    </div>
+  </div>
+</div>
+
 <div class="hud-top">
   <div class="logo">J.A.R.V.I.S.</div>
   <div class="sys">
@@ -311,7 +291,6 @@ body{
 
 <div class="main">
 
-  <!-- ARC REACTOR CORE -->
   <div class="core-wrap">
     <div class="ring ring-1"></div>
     <div class="ring ring-2"></div>
@@ -329,7 +308,6 @@ body{
     </div>
   </div>
 
-  <!-- STATUS ROW -->
   <div class="status-row">
     <div class="stat-item">
       <span class="stat-val ok" id="arc-pct">98%</span>
@@ -349,14 +327,12 @@ body{
     </div>
   </div>
 
-  <!-- TERMINAL PANEL -->
   <div class="panel" style="flex-shrink:1;">
     <div class="panel-title">/// interface neural — output</div>
     <div id="terminal">Inicializando uplink quântico com o cluster Supabase...</div>
     <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
   </div>
 
-  <!-- MODE + INPUT -->
   <div style="width:100%;display:flex;flex-direction:column;gap:8px;">
     <div class="mode-toggle">
       <button class="mode-btn active" id="btn-voice" onclick="setMode('voice')">▶ VOZ</button>
@@ -368,9 +344,14 @@ body{
     </div>
   </div>
 
-  <!-- DIAG + CONTROLS -->
   <div class="panel">
     <div class="panel-title">/// diagnóstico do sistema</div>
+    <select class="model-select" id="model-select">
+      <option value="gpt-4o">GPT-4o (recomendado)</option>
+      <option value="gpt-4o-mini">GPT-4o Mini (mais rápido)</option>
+      <option value="gpt-4-turbo">GPT-4 Turbo</option>
+      <option value="gpt-3.5-turbo">GPT-3.5 Turbo (econômico)</option>
+    </select>
     <div class="diag">
       <div class="diag-row">
         <span class="diag-label">NEURAL</span>
@@ -389,7 +370,7 @@ body{
       </div>
     </div>
     <div class="controls">
-      <button class="btn" onclick="configurarChave()">API KEY</button>
+      <button class="btn" onclick="abrirModal()">API KEY</button>
       <span id="memory-tag">MEM: LIMPA</span>
       <button class="btn danger" onclick="limparMemoria()">RESET</button>
     </div>
@@ -414,7 +395,11 @@ let API_KEY = "";
 let history = [];
 let inputMode = 'voice';
 
-// --- RADAR CANVAS ---
+function getModel() {
+  return document.getElementById('model-select').value;
+}
+
+// --- RADAR ---
 const rc = document.getElementById('radar-canvas');
 const rx = rc.getContext('2d');
 rc.width = 260; rc.height = 260;
@@ -426,7 +411,6 @@ function drawRadar() {
   [40,80,120].forEach(radius=>{rx.beginPath();rx.arc(cx,cy,radius,0,Math.PI*2);rx.stroke();});
   rx.beginPath();rx.moveTo(cx-r,cy);rx.lineTo(cx+r,cy);rx.stroke();
   rx.beginPath();rx.moveTo(cx,cy-r);rx.lineTo(cx,cy+r);rx.stroke();
-  const grad=rx.createConicalGradient?null:null;
   rx.save();rx.translate(cx,cy);rx.rotate(radarAngle);
   const lg=rx.createLinearGradient(0,-r,0,0);
   lg.addColorStop(0,'rgba(0,229,255,0.6)');lg.addColorStop(1,'rgba(0,229,255,0)');
@@ -446,30 +430,78 @@ setInterval(()=>{
     n.getSeconds().toString().padStart(2,'0');
 },1000);
 
+// --- MODAL ---
+function abrirModal() {
+  const inp = document.getElementById('modal-key-input');
+  inp.value = API_KEY || '';
+  setModalHint('Cole sua chave OpenAI acima', '');
+  document.getElementById('api-modal').classList.remove('hidden');
+  setTimeout(()=>inp.focus(), 100);
+}
+function fecharModal() {
+  document.getElementById('api-modal').classList.add('hidden');
+}
+function setModalHint(msg, type) {
+  const h = document.getElementById('modal-hint');
+  h.textContent = msg;
+  h.className = 'modal-hint' + (type ? ' ' + type : '');
+}
+
+document.getElementById('modal-key-input').addEventListener('input', function() {
+  const v = this.value.trim();
+  if (!v) { setModalHint('Cole sua chave OpenAI acima', ''); return; }
+  if (v.startsWith('sk-')) {
+    setModalHint('✓ Formato válido — pressione CONFIRMAR', 'ok');
+  } else {
+    setModalHint('⚠ Chave inválida. Deve começar com sk-', 'err');
+  }
+});
+
+async function salvarModalKey() {
+  const v = document.getElementById('modal-key-input').value.trim();
+  if (!v) { fecharModal(); return; }
+  if (!v.startsWith('sk-')) {
+    setModalHint('⚠ Chave inválida! Deve começar com sk-', 'err');
+    return;
+  }
+  API_KEY = v;
+  fecharModal();
+  typeWrite("Atualizando credenciais no cluster remoto...");
+  await salvarChave(API_KEY);
+  typeWrite("Assinatura digital registrada com sucesso na nuvem, Senhor.");
+  playTone(520,0.1,'sine');
+}
+
 // --- SUPABASE ---
 async function carregarDados() {
-  const t0=performance.now();
+  const t0 = performance.now();
   try {
     const [{data:kd},{data:hd}] = await Promise.all([
-      db.from('jarvis_memory').select('value').eq('key','gemini_key').single(),
+      db.from('jarvis_memory').select('value').eq('key','openai_key').single(),
       db.from('jarvis_memory').select('value').eq('key','history').single()
     ]);
-    const t1=performance.now();
-    document.getElementById('ping-val').textContent=Math.round(t1-t0)+'ms';
+    const t1 = performance.now();
+    document.getElementById('ping-val').textContent = Math.round(t1-t0)+'ms';
 
-    if(kd?.value && kd.value!=="X") API_KEY=kd.value;
-    if(hd?.value) history=Array.isArray(hd.value)?hd.value:[];
+    if (kd?.value && kd.value !== "X") API_KEY = kd.value;
+    if (hd?.value) history = Array.isArray(hd.value) ? hd.value : [];
 
     atualizarMemoria();
-    typeWrite(API_KEY
-      ? "Uplink Supabase estável. Todos os sistemas operacionais, Senhor."
-      : "Conexão em nuvem estabelecida. Aguardando assinatura de API, Senhor."
-    );
-    document.getElementById('cloud-status').textContent='SYNC';
+
+    if (API_KEY) {
+      typeWrite("Uplink Supabase estável. Todos os sistemas operacionais, Senhor.");
+    } else {
+      typeWrite("Conexão em nuvem estabelecida. Configure sua OpenAI API Key para ativar o módulo neural, Senhor.");
+      setTimeout(abrirModal, 1200);
+    }
+    document.getElementById('cloud-status').textContent = 'SYNC';
   } catch(e) {
-    document.getElementById('cloud-status').textContent='FAIL';
-    document.getElementById('cloud-status').style.color='var(--red)';
+    document.getElementById('cloud-status').textContent = 'FAIL';
+    document.getElementById('cloud-status').style.color = 'var(--red)';
     typeWrite("Falha no uplink com o cluster Supabase. Operando em modo local.");
+    setTimeout(()=>{
+      if (!API_KEY) abrirModal();
+    }, 1000);
   }
 }
 
@@ -477,85 +509,88 @@ async function salvarHistorico() {
   try { await db.from('jarvis_memory').update({value:history}).eq('key','history'); } catch(e){}
 }
 async function salvarChave(chave) {
-  try { await db.from('jarvis_memory').update({value:chave}).eq('key','gemini_key'); } catch(e){}
+  try {
+    // Tenta update primeiro, se falhar tenta upsert
+    const { error } = await db.from('jarvis_memory').update({value:chave}).eq('key','openai_key');
+    if (error) {
+      await db.from('jarvis_memory').upsert({key:'openai_key', value:chave});
+    }
+  } catch(e){}
 }
 
 function atualizarMemoria() {
-  const total=Math.floor(history.length/2);
-  memTag.textContent=total>0?`MEM: ${total} REC`:'MEM: LIMPA';
-  document.getElementById('mem-count').textContent=total;
-  const pct=Math.min(100,total*8);
-  document.getElementById('mem-bar').style.width=Math.max(5,pct)+'%';
-  document.getElementById('mem-bar-pct').textContent=Math.max(5,pct)+'%';
+  const total = history.filter(m=>m.role==='user').length;
+  memTag.textContent = total > 0 ? `MEM: ${total} REC` : 'MEM: LIMPA';
+  document.getElementById('mem-count').textContent = total;
+  const pct = Math.min(100, total*8);
+  document.getElementById('mem-bar').style.width = Math.max(5,pct)+'%';
+  document.getElementById('mem-bar-pct').textContent = Math.max(5,pct)+'%';
 }
 
 // --- SPEECH ---
-const SR = window.SpeechRecognition||window.webkitSpeechRecognition;
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const rec = SR ? new SR() : null;
-if(rec) {
-  rec.lang='pt-BR'; rec.interimResults=false; rec.continuous=false;
-  rec.onstart=()=>{ setCore('listening','LISTEN'); terminal.textContent='Captando canal de voz...'; playTone(300,0.06,'sine'); };
-  rec.onresult=async(e)=>{
-    const cmd=e.results[0][0].transcript;
-    terminal.innerHTML=`<span style="color:var(--text-dim)">SENHOR ▶</span> ${cmd}`;
+if (rec) {
+  rec.lang = 'pt-BR'; rec.interimResults = false; rec.continuous = false;
+  rec.onstart = ()=>{ setCore('listening','LISTEN'); terminal.textContent='Captando canal de voz...'; playTone(300,0.06,'sine'); };
+  rec.onresult = async(e)=>{
+    const cmd = e.results[0][0].transcript;
+    terminal.innerHTML = `<span style="color:var(--text-dim)">SENHOR ▶</span> ${cmd}`;
     setCore('thinking','PROC');
     progress.classList.add('running');
-    const res=await pensar(cmd);
+    const res = await pensar(cmd);
     progress.classList.remove('running');
     falar(res);
   };
-  rec.onerror=(e)=>{ if(e.error!=='aborted'){resetCore();typeWrite("Interferência no canal de voz, Senhor.");} };
-  rec.onend=()=>{ if(core.classList.contains('listening')) resetCore(); };
+  rec.onerror = (e)=>{ if(e.error!=='aborted'){resetCore();typeWrite("Interferência no canal de voz, Senhor.");} };
+  rec.onend = ()=>{ if(core.classList.contains('listening')) resetCore(); };
 }
 
 function handleCoreClick() {
-  if(window.speechSynthesis.speaking){window.speechSynthesis.cancel();resetCore();typeWrite("Transmissão vocal interrompida.");return;}
-  if(!API_KEY){typeWrite("Assinatura digital ausente. Configure sua API Key, Senhor.");setTimeout(configurarChave,800);return;}
-  if(inputMode==='text') return;
-  if(!rec){typeWrite("Reconhecimento de voz não suportado neste ambiente, Senhor.");return;}
-  if(core.classList.contains('listening')){rec.stop();resetCore();return;}
-  try{rec.start();}catch(e){resetCore();}
+  if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); resetCore(); typeWrite("Transmissão vocal interrompida."); return; }
+  if (!API_KEY) { typeWrite("Assinatura digital ausente. Configure sua OpenAI API Key, Senhor."); setTimeout(abrirModal, 600); return; }
+  if (inputMode === 'text') return;
+  if (!rec) { typeWrite("Reconhecimento de voz não suportado neste ambiente, Senhor."); return; }
+  if (core.classList.contains('listening')) { rec.stop(); resetCore(); return; }
+  try { rec.start(); } catch(e) { resetCore(); }
 }
 
 function setMode(m) {
-  inputMode=m;
-  document.getElementById('btn-voice').classList.toggle('active',m==='voice');
-  document.getElementById('btn-text').classList.toggle('active',m==='text');
-  document.getElementById('text-mode').style.display=m==='text'?'flex':'none';
+  inputMode = m;
+  document.getElementById('btn-voice').classList.toggle('active', m==='voice');
+  document.getElementById('btn-text').classList.toggle('active', m==='text');
+  document.getElementById('text-mode').style.display = m==='text' ? 'flex' : 'none';
 }
 
 async function enviarTexto() {
-  const inp=document.getElementById('text-input');
-  const cmd=inp.value.trim();
-  if(!cmd)return;
-  if(!API_KEY){typeWrite("Assinatura digital ausente. Configure sua API Key, Senhor.");setTimeout(configurarChave,600);return;}
-  inp.value='';
-  terminal.innerHTML=`<span style="color:var(--text-dim)">SENHOR ▶</span> ${cmd}`;
+  const inp = document.getElementById('text-input');
+  const cmd = inp.value.trim();
+  if (!cmd) return;
+  if (!API_KEY) { typeWrite("Assinatura digital ausente. Configure sua OpenAI API Key, Senhor."); setTimeout(abrirModal, 600); return; }
+  inp.value = '';
+  terminal.innerHTML = `<span style="color:var(--text-dim)">SENHOR ▶</span> ${cmd}`;
   setCore('thinking','PROC');
   progress.classList.add('running');
-  const res=await pensar(cmd);
+  const res = await pensar(cmd);
   progress.classList.remove('running');
   falar(res);
 }
 
-document.getElementById('text-input').addEventListener('keydown',e=>{if(e.key==='Enter')enviarTexto();});
+document.getElementById('text-input').addEventListener('keydown', e=>{ if(e.key==='Enter') enviarTexto(); });
 
-function setCore(cls,label) {
-  core.className=cls;
-  coreLabel.textContent=label;
-}
+function setCore(cls, label) { core.className = cls; coreLabel.textContent = label; }
 function resetCore() {
-  core.className='';
-  coreLabel.textContent='CORE';
+  core.className = '';
+  coreLabel.textContent = 'CORE';
   progress.classList.remove('running');
-  progress.style.width='0%';
+  progress.style.width = '0%';
   atualizarMemoria();
 }
 
-function typeWrite(txt,prefix='J.A.R.V.I.S ▶') {
-  terminal.innerHTML=`<span style="color:var(--green)">${prefix}</span> `;
-  let i=0;
-  const go=()=>{if(i<txt.length){terminal.innerHTML+=txt[i];i++;setTimeout(go,11);}};
+function typeWrite(txt, prefix='J.A.R.V.I.S ▶') {
+  terminal.innerHTML = `<span style="color:var(--green)">${prefix}</span> `;
+  let i = 0;
+  const go = ()=>{ if(i<txt.length){ terminal.innerHTML+=txt[i]; i++; setTimeout(go,11); } };
   go();
 }
 
@@ -563,77 +598,104 @@ function falar(txt) {
   resetCore();
   setCore('speaking','TALK');
   typeWrite(txt);
-  const u=new SpeechSynthesisUtterance(txt);
-  u.lang='pt-BR'; u.pitch=0.85; u.rate=1.1;
-  const voices=window.speechSynthesis.getVoices();
-  const v=voices.find(v=>v.lang.includes('pt')&&v.name.toLowerCase().includes('google'))||voices.find(v=>v.lang.includes('pt'));
-  if(v)u.voice=v;
-  u.onend=resetCore; u.onerror=resetCore;
+  const u = new SpeechSynthesisUtterance(txt);
+  u.lang = 'pt-BR'; u.pitch = 0.85; u.rate = 1.1;
+  const voices = window.speechSynthesis.getVoices();
+  const v = voices.find(v=>v.lang.includes('pt')&&v.name.toLowerCase().includes('google')) || voices.find(v=>v.lang.includes('pt'));
+  if (v) u.voice = v;
+  u.onend = resetCore; u.onerror = resetCore;
   window.speechSynthesis.speak(u);
 }
 
+// --- OPENAI API ---
 async function pensar(cmd) {
-  const sys="Você é J.A.R.V.I.S., inteligência artificial avançada de Tony Stark. Responda em português do Brasil com linguagem precisa, elegância britânica e leve ironia. Trate o usuário sempre como 'Senhor'. Respostas diretas, máximo 2 frases.";
-  history.push({role:"user",parts:[{text:cmd}]});
-  if(history.length>14)history.splice(0,2);
+  const sys = "Você é J.A.R.V.I.S., inteligência artificial avançada de Tony Stark. Responda em português do Brasil com linguagem precisa, elegância britânica e leve ironia. Trate o usuário sempre como 'Senhor'. Respostas diretas, máximo 2 frases.";
+
+  // Formato OpenAI: array de {role, content}
+  history.push({ role: "user", content: cmd });
+  if (history.length > 20) history.splice(0, 2);
+
+  const messages = [
+    { role: "system", content: sys },
+    ...history
+  ];
+
   try {
-    const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:history})
+    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: getModel(),
+        messages: messages,
+        max_tokens: 200,
+        temperature: 0.85
+      })
     });
-    const d=await r.json();
-    const ans=d.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!ans)throw new Error();
-    history.push({role:"model",parts:[{text:ans}]});
+
+    if (!r.ok) {
+      const errData = await r.json().catch(()=>({}));
+      const status = r.status;
+      history.pop();
+
+      if (status === 401) return "Credenciais recusadas. Sua API Key OpenAI é inválida ou expirou, Senhor.";
+      if (status === 403) return "Acesso negado pelo servidor OpenAI. Verifique as permissões da sua chave, Senhor.";
+      if (status === 429) {
+        const errCode = errData?.error?.code;
+        if (errCode === 'insufficient_quota') return "Cota da API OpenAI esgotada. Verifique seu saldo em platform.openai.com, Senhor.";
+        return "Limite de requisições atingido. Aguarde alguns instantes, Senhor.";
+      }
+      if (status === 400) return "Requisição malformada ou modelo inválido. Tente outro modelo no seletor, Senhor.";
+      if (status >= 500) return "Servidor OpenAI temporariamente indisponível. Tente novamente em breve, Senhor.";
+      return `Erro ${status} no vetor neural. Verifique sua API Key, Senhor.`;
+    }
+
+    const d = await r.json();
+    const ans = d.choices?.[0]?.message?.content;
+    if (!ans) throw new Error('empty');
+
+    history.push({ role: "assistant", content: ans });
     salvarHistorico();
     return ans;
+
   } catch(e) {
-    history.pop();
-    return "Falha no vetor de processamento neural. Verifique a sua API Key ou conexão, Senhor.";
+    if (history[history.length-1]?.role === 'user') history.pop();
+    if (e.message === 'Failed to fetch') return "Falha de conexão com os servidores OpenAI. Verifique sua internet, Senhor.";
+    return "Falha no módulo neural. Verifique sua API Key e conexão com a internet, Senhor.";
   }
 }
 
-async function configurarChave() {
-  const k=prompt("Insira sua Gemini API Key:",API_KEY);
-  if(k===null)return;
-  API_KEY=k.trim();
-  typeWrite("Atualizando credenciais no cluster remoto...");
-  await salvarChave(API_KEY);
-  typeWrite(API_KEY?"Assinatura digital registrada com sucesso na nuvem, Senhor.":"Chave removida do sistema.");
-  playTone(520,0.1,'sine');
-}
-
 async function limparMemoria() {
-  history=[];
+  history = [];
   typeWrite("Purgando registros da memória volátil remota...");
   try { await db.from('jarvis_memory').update({value:[]}).eq('key','history'); } catch(e){}
   atualizarMemoria();
-  setTimeout(()=>typeWrite("Matriz de memória purgada com sucesso, Senhor."),800);
+  setTimeout(()=>typeWrite("Matriz de memória purgada com sucesso, Senhor."), 800);
   playTone(100,0.15,'sawtooth');
 }
 
-function playTone(freq,dur,type) {
+function playTone(freq, dur, type) {
   try {
-    const ac=new(window.AudioContext||window.webkitAudioContext)();
-    const o=ac.createOscillator(),g=ac.createGain();
-    o.type=type; o.frequency.value=freq;
-    g.gain.setValueAtTime(0.06,ac.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+dur);
-    o.connect(g);g.connect(ac.destination);
-    o.start();o.stop(ac.currentTime+dur);
-  }catch(e){}
+    const ac = new(window.AudioContext||window.webkitAudioContext)();
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.06, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime+dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime+dur);
+  } catch(e){}
 }
 
-// Arc pulsing fake values
 setInterval(()=>{
-  const v=96+Math.random()*3;
-  document.getElementById('arc-pct').textContent=v.toFixed(0)+'%';
-},3000);
+  const v = 96+Math.random()*3;
+  document.getElementById('arc-pct').textContent = v.toFixed(0)+'%';
+}, 3000);
 
-window.onload=()=>{
-  if(window.speechSynthesis.onvoiceschanged!==undefined)
-    window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();
+window.onload = ()=>{
+  if (window.speechSynthesis.onvoiceschanged !== undefined)
+    window.speechSynthesis.onvoiceschanged = ()=>window.speechSynthesis.getVoices();
   carregarDados();
 };
 </script>
